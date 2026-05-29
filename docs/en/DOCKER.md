@@ -24,7 +24,7 @@ services:
     image: ghcr.io/nodepassproject/nb-panel:latest
     container_name: nb-panel
     ports:
-      - "3000:3000"
+      - "4000:4000"
     volumes:
       - ./db:/app/db
       - ./logs:/app/logs

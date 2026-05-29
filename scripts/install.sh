@@ -266,8 +266,8 @@ show_header() {
   clear
   echo
   echo -e " ${BOLD}${BLUE}+──────────────────────────────+${NC}"
-  echo -e " ${BOLD}${BLUE}|${NC}        NB面板 安装管理器 ${BOLD}${BLUE}    |${NC}"
-  echo -e " ${BOLD}${BLUE}|${NC}${CYAN}github.com/lima-droid/NB-Panel${NC} ${BOLD}${BLUE}|${NC}"
+  echo -e " ${BOLD}${BLUE}|${NC}       NB面板 安装管理器 ${BOLD}${BLUE}     |${NC}"
+  echo -e " ${BOLD}${BLUE}|${NC}${CYAN}github.com/lima-droid/NB-Panel${NC}${BOLD}${BLUE}|${NC}"
   echo -e " ${BOLD}${BLUE}+──────────────────────────────+${NC}"
   echo
 }

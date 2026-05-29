@@ -43,7 +43,7 @@ const (
 
 // 默认账号密码常量
 const (
-	DefaultAdminUsername = "nodepass"
+	DefaultAdminUsername = "nbpanel"
 	DefaultAdminPassword = "Np123456"
 )
 

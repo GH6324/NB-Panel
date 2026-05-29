@@ -495,7 +495,7 @@ func (s *Service) ResetAdminPassword() (string, string, error) {
 	// 读取当前用户名
 	username, err := s.GetSystemConfig(ConfigKeyAdminUsername)
 	if err != nil || username == "" {
-		username = "nodepass"
+		username = DefaultAdminUsername
 	}
 
 	// 生成新密码

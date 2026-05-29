@@ -28,6 +28,11 @@ NB面板 is a modern web dashboard for managing **NB面板** endpoints, tunnels,
 
 ## Quick Start
 
+```bash
+bash <(wget -qO- https://raw.githubusercontent.com/lima-droid/NB-Panel/main/scripts/install.sh)
+```
+
+- **One-liner install:** `scripts/install.sh`
 - **Binary + systemd:** `docs/en/BINARY.md`
 - **Docker:** `docs/en/DOCKER.md`
 - **Development:** `docs/en/DEVELOPMENT.md`
@@ -59,7 +64,7 @@ NB面板 is a modern web dashboard for managing **NB面板** endpoints, tunnels,
 | **Username** | `nbpanel` |
 | **Password** | `Np123456` |
 
-> Password can be overridden via environment variable `NODEPASS_ADMIN_PASSWORD`.
+> Password can be overridden via environment variable `NB_PANEL_ADMIN_PASSWORD`.
 
 ## License
 

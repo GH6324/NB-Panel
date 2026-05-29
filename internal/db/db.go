@@ -72,8 +72,8 @@ func GetDB() *gorm.DB {
 			},
 		}
 
-		// 连接数据库 - 使用纯Go SQLite驱动 (modernc.org/sqlite)
-		sqlDB, err := sql.Open("sqlite3", dsn)
+		// 连接数据库 - 使用纯Go SQLite驱动 (modernc.org/sqlite，驱动名"sqlite")
+		sqlDB, err := sql.Open("sqlite", dsn)
 		if err != nil {
 			log.Fatalf("打开SQLite数据库失败: %v", err)
 		}

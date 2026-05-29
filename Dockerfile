@@ -71,7 +71,7 @@ WORKDIR /app
 COPY --from=backend-builder /app/nb-panel ./
 
 # 默认端口
-EXPOSE 3000
+EXPOSE 4000
 
 # 启动命令
 CMD ["/app/nb-panel"]

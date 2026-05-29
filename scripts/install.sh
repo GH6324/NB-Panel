@@ -198,7 +198,7 @@ EOF
 
   echo
   echo -e "${BOLD}${GREEN}+────────────────────+${NC}"
-  echo -e "${BOLD}${GREEN}|   NB面板 安装完成！ |${NC}"
+  echo -e "${BOLD}${GREEN}|   NB面板 安装完成！|${NC}"
   echo -e "${BOLD}${GREEN}+────────────────────+${NC}"
   echo
   echo -e " 访问地址: ${CYAN}${proto}://${DASH_IP}:${USER_PORT}${NC}"

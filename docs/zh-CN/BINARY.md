@@ -1,6 +1,6 @@
-# 二进制部署（NodePassDash）
+# 二进制部署（NB面板）
 
-本指南适用于在 VPS / 服务器上以原生二进制方式部署 NodePassDash（systemd 场景推荐）。
+本指南适用于在 VPS / 服务器上以原生二进制方式部署 NB面板（systemd 场景推荐）。
 
 ## 环境要求
 
@@ -26,28 +26,28 @@ chmod +x install.sh
 ## 方式二：手动安装（Releases）
 
 1）从 GitHub Releases 下载对应平台压缩包并解压  
-2）将 `nodepassdash` 放到例如 `/opt/nodepassdash/bin/nodepassdash`  
+2）将 `nodepassdash` 放到例如 `/opt/nb-panel/bin/nodepassdash`  
 3）在工作目录中启动（便于 `db/`、`logs/` 落在同级目录）：
 
 ```bash
-cd /opt/nodepassdash
-./bin/nodepassdash --port 3000
+cd /opt/nb-panel
+./bi./nb-panel --port 3000
 ```
 
 ## systemd 示例
 
-创建 `/etc/systemd/system/nodepassdash.service`：
+创建 `/etc/systemd/system/nb-panel.service`：
 
 ```ini
 [Unit]
-Description=NodePassDash
+Description=NB面板
 After=network.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/nodepassdash
-ExecStart=/opt/nodepassdash/bin/nodepassdash --port 3000
+WorkingDirectory=/opt/nb-panel
+ExecStart=/opt/nb-panel/bi./nb-panel --port 3000
 Restart=on-failure
 RestartSec=2
 
@@ -59,18 +59,18 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now nodepassdash
-sudo systemctl status nodepassdash --no-pager
+sudo systemctl enable --now nb-panel
+sudo systemctl status nb-panel --no-pager
 ```
 
 ## 首次登录 / 重置密码
 
-- 首次启动会在日志中输出初始管理员账号信息：`journalctl -u nodepassdash -n 200`
+- 首次启动会在日志中输出初始管理员账号信息：`journalctl -u nb-panel -n 200`
 - 重置管理员密码（重置后需要重启服务）：
 
 ```bash
-/opt/nodepassdash/bin/nodepassdash --resetpwd
-sudo systemctl restart nodepassdash
+/opt/nb-panel/bi./nb-panel --resetpwd
+sudo systemctl restart nb-panel
 ```
 
 ## HTTPS（TLS）
@@ -78,10 +78,10 @@ sudo systemctl restart nodepassdash
 同时指定证书与私钥即可启用 HTTPS：
 
 ```bash
-/opt/nodepassdash/bin/nodepassdash --port 443 --cert /path/to/cert.pem --key /path/to/key.pem
+/opt/nb-panel/bi./nb-panel --port 443 --cert /path/to/cert.pem --key /path/to/key.pem
 ```
 
-生产环境也可以让 NodePassDash 监听内网端口，再由 Nginx/Caddy 等反代并签发证书。
+生产环境也可以让 NB面板 监听内网端口，再由 Nginx/Caddy 等反代并签发证书。
 
 ## 升级
 

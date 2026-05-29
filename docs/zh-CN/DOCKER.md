@@ -1,6 +1,6 @@
-# Docker 部署（NodePassDash）
+# Docker 部署（NB面板）
 
-本指南使用 Docker 部署 NodePassDash。NodePassDash 以 **单容器**方式运行（Go API + 内置 Web UI），默认使用 **单端口**（`3000`）。
+本指南使用 Docker 部署 NB面板。 NB面板 以 **单容器**方式运行（Go API + 内置 Web UI），默认使用 **单端口**（`3000`）。
 
 ## 环境要求
 
@@ -12,7 +12,7 @@
 1）准备目录：
 
 ```bash
-mkdir -p nodepassdash && cd nodepassdash
+mkdir -p nb-panel && cd nb-panel
 mkdir -p db logs
 ```
 
@@ -20,9 +20,9 @@ mkdir -p db logs
 
 ```yaml
 services:
-  nodepassdash:
-    image: ghcr.io/nodepassproject/nodepassdash:latest
-    container_name: nodepassdash
+  nb-panel:
+    image: ghcr.io/lima-droid/nb-panel:latest
+    container_name: nb-panel
     ports:
       - "3000:3000"
     volumes:
@@ -48,7 +48,7 @@ docker compose up -d
 首次启动会自动初始化数据库，并在日志中输出初始管理员账号信息：
 
 ```bash
-docker logs nodepassdash | grep -E \"初始化完成|initialized|用户名|password\" -n || docker logs nodepassdash
+docker logs nb-panel | grep -E \"初始化完成|initialized|用户名|password\" -n || docker logs nb-panel
 ```
 
 登录后建议立即在界面中修改密码。
@@ -60,7 +60,7 @@ docker logs nodepassdash | grep -E \"初始化完成|initialized|用户名|passw
 ### 端口
 
 - 默认端口：`3000`
-- CLI：`./nodepassdash --port 8080`
+- CLI：`./nb-panel --port 8080`
 - Env：`PORT=8080`
 
 ### TLS（HTTPS）
@@ -68,28 +68,28 @@ docker logs nodepassdash | grep -E \"初始化完成|initialized|用户名|passw
 同时提供证书与私钥即可启用 HTTPS：
 
 ```bash
-./nodepassdash --cert /path/to/cert.pem --key /path/to/key.pem
+./nb-panel --cert /path/to/cert.pem --key /path/to/key.pem
 ```
 
 Docker 中可挂载证书并通过 `command:` 传参：
 
 ```yaml
 services:
-  nodepassdash:
-    image: ghcr.io/nodepassproject/nodepassdash:latest
+  nb-panel:
+    image: ghcr.io/lima-droid/nb-panel:latest
     ports: ["443:443"]
     volumes:
       - ./db:/app/db
       - ./logs:/app/logs
       - ./certs/fullchain.pem:/certs/fullchain.pem:ro
       - ./certs/privkey.pem:/certs/privkey.pem:ro
-    command: ["./nodepassdash","--port","443","--cert","/certs/fullchain.pem","--key","/certs/privkey.pem"]
+    command: ["./nb-panel","--port","443","--cert","/certs/fullchain.pem","--key","/certs/privkey.pem"]
 ```
 
 ### 禁用用户名密码登录（仅 OAuth2）
 
 ```bash
-./nodepassdash --disable-login
+./nb-panel --disable-login
 ```
 
 启用前请先在界面中配置好 OAuth2，否则可能会无法登录。
@@ -117,6 +117,6 @@ docker compose up -d
 ## 排错
 
 - 健康检查：`curl -fsS http://localhost:3000/api/health`
-- 查看日志：`docker logs -f nodepassdash`
-- 重置管理员密码（重置后需要重启容器）：`docker exec -it nodepassdash ./nodepassdash --resetpwd`
+- 查看日志：`docker logs -f nb-panel`
+- 重置管理员密码（重置后需要重启容器）：`docker exec -it nodepassdash ./nb-panel --resetpwd`
 

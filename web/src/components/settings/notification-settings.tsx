@@ -150,7 +150,6 @@ export default function NotificationSettings() {
               添加通知渠道
             </Button>
           </div>
-          </div>
 
           {/* 企业微信通知 */}
           <div className="border rounded-lg p-4 space-y-4">

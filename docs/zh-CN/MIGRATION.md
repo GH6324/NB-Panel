@@ -15,7 +15,7 @@
 ### 3. 拉取最新镜像
 
 ```bash
-docker pull ghcr.io/nodepassproject/nodepassdash:latest
+docker pull ghcr.io/lima-droid/nb-panel:latest
 ```
 
 ### 4. 重启容器

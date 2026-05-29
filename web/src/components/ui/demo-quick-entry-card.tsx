@@ -1,0 +1,239 @@
+import { Card, CardBody, useDisclosure } from "@heroui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faServer,
+  faLayerGroup,
+  faBug,
+} from "@fortawesome/free-solid-svg-icons";
+import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
+import { addToast } from "@heroui/toast";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import AddEndpointModal from "@/components/endpoints/add-endpoint-modal";
+import SimpleCreateTunnelModal from "@/components/tunnels/simple-create-tunnel-modal";
+import ScenarioSelectionModal from "@/components/services/scenario-selection-modal";
+import ScenarioCreateModal, {
+  ScenarioType,
+} from "@/components/services/service-create-modal";
+import { buildApiUrl } from "@/lib/utils";
+
+/**
+ * Demo QuickEntry Card 快捷操作卡片组件（Demo页面专用）
+ * 2列3行布局，按钮为左右布局：icon label
+ */
+export function DemoQuickEntryCard() {
+  const navigate = useNavigate();
+  const { t } = useTranslation("dashboard");
+
+  // 模态框控制
+  const {
+    isOpen: isAddEndpointOpen,
+    onOpen: onAddEndpointOpen,
+    onOpenChange: onAddEndpointOpenChange,
+  } = useDisclosure();
+
+  const {
+    isOpen: isCreateTunnelOpen,
+    onOpen: onCreateTunnelOpen,
+    onOpenChange: onCreateTunnelOpenChange,
+  } = useDisclosure();
+
+  // 场景选择模态框状态
+  const [scenarioSelectionModalOpen, setScenarioSelectionModalOpen] = useState(false);
+
+  // 场景创建模态框状态
+  const [scenarioModalOpen, setScenarioModalOpen] = useState(false);
+  const [selectedScenarioType, setSelectedScenarioType] = useState<
+    ScenarioType | undefined
+  >();
+
+  const quickActions = [
+    {
+      id: "add-endpoint",
+      icon: faServer,
+      label: t("quickActions.addEndpoint"),
+      action: "modal",
+      color: "bg-blue-500 hover:bg-blue-600",
+      iconType: "fontawesome",
+      external: false,
+    },
+    {
+      id: "create-tunnel",
+      icon: "solar:transmission-bold",
+      label: t("quickActions.createTunnel"),
+      action: "modal",
+      color: "bg-green-500 hover:bg-green-600",
+      iconType: "iconify",
+      external: false,
+    },
+    {
+      id: "template-create",
+      icon: faLayerGroup,
+      label: t("quickActions.scenarioCreate"),
+      action: "modal",
+      color: "bg-purple-500 hover:bg-purple-600",
+      iconType: "fontawesome",
+      external: false,
+    },
+    {
+      id: "debug-tools",
+      icon: faBug,
+      label: t("quickActions.debugTools"),
+      action: "navigate",
+      route: "/debug",
+      color: "bg-teal-500 hover:bg-teal-600",
+      iconType: "fontawesome",
+      external: false,
+    },
+    {
+      id: "settings",
+      icon: "solar:settings-bold",
+      label: t("quickActions.settings"),
+      action: "navigate",
+      route: "/settings",
+      color: "bg-gray-500 hover:bg-gray-600",
+      iconType: "iconify",
+      external: false,
+    },
+  ];
+
+  // 处理添加主控
+  const handleAddEndpoint = async (data: any) => {
+    try {
+      const response = await fetch(buildApiUrl("/api/endpoints"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || t("quickActions.addEndpointError"));
+      }
+
+      addToast({
+        title: t("quickActions.addEndpointSuccess"),
+        description: t("quickActions.addEndpointSuccessDesc"),
+        color: "success",
+      });
+    } catch (error) {
+      addToast({
+        title: t("quickActions.addEndpointFailed"),
+        description:
+          error instanceof Error ? error.message : t("quickActions.addEndpointErrorDesc"),
+        color: "danger",
+      });
+      throw error; // 重新抛出错误，让模态框处理
+    }
+  };
+
+  // 处理隧道创建成功
+  const handleTunnelCreated = () => {
+    // 创建隧道成功后的处理，可以在这里添加刷新逻辑或其他操作
+  };
+
+  // 处理场景选择
+  const handleScenarioSelected = (scenarioType: ScenarioType) => {
+    setSelectedScenarioType(scenarioType);
+    setScenarioModalOpen(true);
+  };
+
+  // 处理快捷操作点击
+  const handleActionClick = (action: any) => {
+    if (action.action === "modal") {
+      if (action.id === "add-endpoint") {
+        onAddEndpointOpen();
+      } else if (action.id === "create-tunnel") {
+        onCreateTunnelOpen();
+      } else if (action.id === "template-create") {
+        setScenarioSelectionModalOpen(true);
+      }
+    } else if (action.action === "navigate") {
+      if (action.external && action.route) {
+        window.open(action.route, "_blank");
+      } else if (action.route) {
+        navigate(action.route);
+      }
+    }
+  };
+
+  return (
+    <Card className="h-full   dark:border-default-100 border border-transparent">
+      <CardBody className="p-5 h-full flex flex-col">
+        {/* 标题 */}
+        <span className="text-base font-semibold text-foreground mb-4">
+          {t("quickActions.title")}
+        </span>
+
+        {/* 按钮网格 - 2列3行 */}
+        <div className="grid grid-cols-2 gap-3 flex-1">
+          {quickActions.map((action) => (
+            <div
+              key={action.id}
+              className="flex items-center gap-3 cursor-pointer group transition-all hover:scale-[1.02] rounded-lg hover:bg-default-50 dark:hover:bg-default-100"
+              onClick={() => handleActionClick(action)}
+            >
+              {/* 图标 */}
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-lg ${action.color} text-white transition-colors duration-200 group-hover:shadow-lg flex-shrink-0`}
+              >
+                {action.iconType === "fontawesome" ? (
+                  <FontAwesomeIcon
+                    className="!w-4 !h-4"
+                    icon={action.icon as any}
+                    style={{ width: "16px", height: "16px" }}
+                  />
+                ) : (
+                  <Icon height={16} icon={action.icon as string} width={16} />
+                )}
+              </div>
+
+              {/* 文字标签 */}
+              <span className="text-sm text-default-600 group-hover:text-foreground transition-colors duration-200 font-medium">
+                {action.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardBody>
+
+      {/* 添加主控模态框 */}
+      <AddEndpointModal
+        isOpen={isAddEndpointOpen}
+        onAdd={handleAddEndpoint}
+        onOpenChange={onAddEndpointOpenChange}
+      />
+
+      {/* 创建实例模态框 */}
+      <SimpleCreateTunnelModal
+        isOpen={isCreateTunnelOpen}
+        mode="create"
+        onOpenChange={onCreateTunnelOpenChange}
+        onSaved={handleTunnelCreated}
+      />
+
+      {/* 场景选择模态框 */}
+      <ScenarioSelectionModal
+        isOpen={scenarioSelectionModalOpen}
+        onOpenChange={setScenarioSelectionModalOpen}
+        onScenarioSelected={handleScenarioSelected}
+      />
+
+      {/* 场景创建模态框 */}
+      <ScenarioCreateModal
+        isOpen={scenarioModalOpen}
+        scenarioType={selectedScenarioType}
+        onOpenChange={setScenarioModalOpen}
+        onSaved={() => {
+          setScenarioModalOpen(false);
+          setSelectedScenarioType(undefined);
+        }}
+      />
+    </Card>
+  );
+}

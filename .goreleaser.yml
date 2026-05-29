@@ -1,0 +1,233 @@
+version: 2
+
+builds:
+  # ==================== Linux 构建 ====================
+  
+  # Linux AMD64 (x86_64) - 最常用的服务器架构
+  - id: linux-amd64
+    env:
+      - CGO_ENABLED=1
+    main: ./cmd/server
+    binary: nodepassdash
+    goos:
+      - linux
+    goarch:
+      - amd64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.Version={{ .Version }}
+    tags:
+      - sqlite_omit_load_extension
+      - sqlite_fts
+      - sqlite_stat4
+      
+  # Linux ARM64 (aarch64) - 新款ARM服务器、树莓派4 64位
+  - id: linux-arm64
+    env:
+      - CGO_ENABLED=1
+      - CC=aarch64-linux-gnu-gcc
+    main: ./cmd/server
+    binary: nodepassdash
+    goos:
+      - linux
+    goarch:
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.Version={{ .Version }}
+    tags:
+      - sqlite_omit_load_extension
+      - sqlite_fts
+      - sqlite_stat4
+      
+  # Linux ARMv7 (hard-float) - 树莓派2/3/4 32位、大多数ARM设备
+  - id: linux-armv7
+    env:
+      - CGO_ENABLED=1
+      - CC=arm-linux-gnueabihf-gcc
+    main: ./cmd/server
+    binary: nodepassdash
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 7
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.Version={{ .Version }}
+    tags:
+      - sqlite_omit_load_extension
+      - sqlite_fts
+      - sqlite_stat4
+      
+  # Linux ARMv6 (soft-float) - 树莓派1、老款ARM设备
+  - id: linux-armv6
+    env:
+      - CGO_ENABLED=1
+      - CC=arm-linux-gnueabi-gcc
+    main: ./cmd/server
+    binary: nodepassdash
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 6
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.Version={{ .Version }}
+    tags:
+      - sqlite_omit_load_extension
+      - sqlite_fts
+      - sqlite_stat4
+
+  # ==================== Windows 构建 ====================
+      
+  # Windows AMD64 - 主流Windows系统
+  - id: windows-amd64
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+    main: ./cmd/server
+    binary: nodepassdash
+    goos:
+      - windows
+    goarch:
+      - amd64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.Version={{ .Version }}
+    tags:
+      - sqlite_omit_load_extension
+      - sqlite_fts
+      - sqlite_stat4
+      
+  # Windows 386 - 32位Windows系统
+  - id: windows-386
+    env:
+      - CGO_ENABLED=1
+      - CC=i686-w64-mingw32-gcc
+    main: ./cmd/server
+    binary: nodepassdash
+    goos:
+      - windows
+    goarch:
+      - 386
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.Version={{ .Version }}
+    tags:
+      - sqlite_omit_load_extension
+      - sqlite_fts
+      - sqlite_stat4
+
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else if eq .Arch "arm" }}armv{{ .Arm }}
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}hf{{ end }}
+    # 包含额外文件到压缩包
+    files:
+      - README.md
+      - LICENSE
+    # 确保二进制文件在根目录，其他文件保持相对路径
+    wrap_in_directory: false
+
+release:
+  # 自动检测预发布版本 (包含 alpha, beta, rc 等)
+  prerelease: auto
+  # 发布名称模板
+  name_template: "NodePassDash {{ .Version }}"
+  # 允许替换已存在的发布
+  replace_existing_draft: true
+  # 发布说明
+  header: |
+    # NodePassDash v3.3.0 更新日志
+    
+    🌍 主要特性：完整的国际化(i18n)支持
+  
+    全面多语言支持（中文/英文），覆盖所有页面和组件：
+    - ✅ 仪表盘、登录页面、设置页面
+    - ✅ 隧道管理（列表、详情、创建、标签管理）
+    - ✅ 端点管理（列表、详情、调试页面）
+    - ✅ 服务管理（列表、详情、场景创建）
+    - ✅ 所有模态框、图表组件、导航栏
+    - ✅ OAuth页面、文档页面、调试页面
+  
+    🔐 认证系统重构
+  
+    JWT认证系统替换原有Cookie认证：
+    - JWT token管理和自动刷新机制
+    - Token互踢功能（同一账号多设备登录互踢）
+  
+    🎨 UI/UX改进
+  
+    - 页面内容宽度统一调整为max-w-[1400px]
+    - 端点管理：新增连接IP字段支持
+    - 主控导入：支持拖拽修改导入顺序
+    - 优化负载均衡placeholder文案
+    - 改进图表组件的加载提示
+  
+    🔧 功能调整
+  
+    - 隧道管理：QUIC字段替换为池类型字段、协议屏蔽、SNI
+    - 删除旧逻辑（回收站、SSE记录表等无用方法）
+    - 场景创建URL拼接逻辑修复
+
+    ---
+    
+    ## 📌 注意事项
+    
+    - 本版本需配合 NodePass Core 1.13 使用
+    - 升级后建议检查已有实例的配置参数是否正常
+  footer: |
+    
+    ### 📥 下载说明
+    - **Linux x86_64**: `nodepassdash_Linux_x86_64.tar.gz` (服务器推荐)
+    - **Linux ARM64**: `nodepassdash_Linux_arm64.tar.gz` (树莓派4 64位、ARM服务器)
+    - **Linux ARMv7**: `nodepassdash_Linux_armv7hf.tar.gz` (树莓派2/3/4 32位)
+    - **Linux ARMv6**: `nodepassdash_Linux_armv6.tar.gz` (树莓派1、老设备)
+    - **Windows 64位**: `nodepassdash_Windows_x86_64.zip`
+    - **Windows 32位**: `nodepassdash_Windows_i386.zip`
+    
+    ### 🐳 Docker 镜像
+    ```bash
+    docker pull ghcr.io/nodepassproject/nodepassdash:{{ .Version }}
+    ```
+    
+    ### 🔧 使用说明
+    1. 下载对应架构的二进制文件
+    2. 解压后直接运行 `./nodepassdash`（无需外部依赖）
+    3. 默认监听 `http://localhost:3000`
+    
+    ### 📝 部署说明
+    - **单文件部署**: 只需要一个可执行文件即可运行
+    - **自动初始化**: 程序会自动创建所需的文件和目录
+    - **数据持久化**: 数据库文件保存在 `db/database.db`

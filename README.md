@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/nb-panel-logo.svg" alt="NB面板" height="80">
+  <img src="docs/nb-panel-logo.png" alt="NB面板" height="120">
 </div>
 
 **Language:** English | [简体中文](docs/zh-CN/README.md)
@@ -52,11 +52,14 @@ NB面板 is a modern web dashboard for managing **NB面板** endpoints, tunnels,
 ./nb-panel --resetpwd
 ```
 
-## Default Password
+## Default Login
 
-Default admin password: `Np123456`
+| | |
+|---|---|
+| **Username** | `nbpanel` |
+| **Password** | `Np123456` |
 
-Can be overridden via environment variable `NODEPASS_ADMIN_PASSWORD`.
+> Password can be overridden via environment variable `NODEPASS_ADMIN_PASSWORD`.
 
 ## License
 

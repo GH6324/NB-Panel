@@ -18,9 +18,10 @@ WORKDIR /app
 COPY web/ ./web/
 
 # 进入 web 目录，清理并安装依赖，然后构建
+# 注意: --no-frozen-lockfile 因为 lockfile 和 package.json 可能不同步
 RUN cd web && \
     rm -rf node_modules && \
-    pnpm install --frozen-lockfile --prod=false --ignore-scripts && \
+    pnpm install --no-frozen-lockfile --prod=false --ignore-scripts && \
     pnpm build && \
     pnpm prune --prod
 

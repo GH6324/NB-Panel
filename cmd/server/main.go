@@ -84,7 +84,7 @@ func parseFlags() (resetPwd bool, port, certFile, keyFile string, showVersion, d
 	}
 
 	// 读取端口：命令行 > 环境变量 > 默认值
-	port = "3000"
+	port = "4000"
 	if env := os.Getenv("PORT"); env != "" {
 		port = env
 	}

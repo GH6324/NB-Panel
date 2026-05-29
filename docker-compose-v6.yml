@@ -1,24 +1,20 @@
 services:
-  # NodePass 应用 - 使用GitHub发布的镜像
   nb-panel:
     image: ghcr.io/lima-droid/nb-panel:latest
     container_name: nb-panel
-    ports:
-      - "4000:4000"  # Web UI + API (single port)
-    # environment:
-    #   - PORT=3000
-    #   - LOG-LEVEL=INFO
-    #   - TLS_CERT=/path/to/cert.pem
-    #   - TLS_KEY=/path/to/key.pem
-    #   - DISABLE_LOGIN=true
+    network_mode: "host"
+    environment:
+      - PORT=4000
+    # - LOG-LEVEL=INFO
+    # - TLS_CERT=/path/to/cert.pem
+    # - TLS_KEY=***
+    # - DISABLE_LOGIN=true
     volumes:
-      - /etc/localtime:/etc/localtime:ro 
+      - /etc/localtime:/etc/localtime:ro
       # TLS certificates
       # - /path/to/cert.pem:/path/to/cert.pem
       # - /path/to/key.pem:/path/to/key.pem
-      # Persist data
       - ./db:/app/db
-      # Persist file logs (optional but recommended)
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
@@ -27,12 +23,3 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    networks:
-      - default      # 默认网络提供 IPv4
-      - ipv6net      # 外部 IPv6 网络
- 
-networks:
-  ipv6net:
-    external: true  # 使用外部创建的网络
-  default:
-    driver: bridge  # 默认 IPv4 网络

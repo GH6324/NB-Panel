@@ -85,18 +85,17 @@ interface ScenarioCreateModalProps {
 const scenarioConfigs = {
   "single-forward": {
     icon: faArrowRight,
+    title: "单端转发",
   },
   "tunnel-forward": {
     icon: faExchangeAlt,
+    title: "隧道转发",
   },
   "nat-penetration": {
     icon: faShield,
+    title: "NAT穿透",
   },
 } as const;
-
-/**
- * 场景创建模态框组件
- */
 export default function ScenarioCreateModal({
   isOpen,
   onOpenChange,

@@ -1,6 +1,6 @@
-import { Link } from "@heroui/link";
-import { Snippet } from "@heroui/snippet";
-import { Code } from "@heroui/code";
+import { Link } from "@heroui/react";
+import { Snippet } from "@heroui/react";
+import { Code } from "@heroui/react";
 
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";

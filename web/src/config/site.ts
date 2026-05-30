@@ -28,7 +28,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/ultrathink/nodepass",
-    docs: "https://nodepass.ultrathink.org/docs",
+    github: "https://github.com/lima-droid/NB-Panel",
+    docs: "https://github.com/lima-droid/NB-Panel",
   },
 };

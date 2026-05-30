@@ -77,6 +77,7 @@ This project is provided "as is", without any express or implied warranties. You
 ## Support
 
 - Issues: https://github.com/lima-droid/NB-Panel/issues
+- TG group: https://t.me/NBPanel
 - Telegram: https://t.me/CubeMihomo
 
 ## Stargazers

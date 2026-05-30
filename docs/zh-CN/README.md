@@ -7,12 +7,12 @@
 ![Version](https://img.shields.io/badge/version-3.4.2-blue.svg)
 ![GitHub license](https://img.shields.io/github/license/lima-droid/NB-Panel)
 
-NB面板 是一个现代化的 **NodePass** 管理面板，用于集中管理端点（Endpoints）、隧道（Tunnels）与服务（Services）。项目采用 **Go（Gin + GORM + SQLite）** 后端并内置 **React（Vite + TypeScript + HeroUI）** 前端，通过 **SSE / WebSocket** 提供实时监控与交互。
+NB面板 是一个现代化的隧道管理面板，用于集中管理端点（Endpoints）、隧道（Tunnels）与服务（Services）。项目采用 **Go（Gin + GORM + SQLite）** 后端并内置 **React（Vite + TypeScript + HeroUI）** 前端，通过 **SSE / WebSocket** 提供实时监控与交互。
 
 ## Demo 演示
 
 - 在线演示：https://nb-panel.example.com/
-- 演示账号：`nodepass` / `Np123456`
+- 演示账号：`nbpanel` / `Np123456`
 
 > ⚠️ 重要提醒：演示环境，请勿更改密码，请勿填写任何敏感信息。
 
@@ -21,7 +21,7 @@ NB面板 是一个现代化的 **NodePass** 管理面板，用于集中管理端
 - **好看且现代的面板**：React + Vite + TypeScript + HeroUI，适配桌面与移动端。
 - **实时监控**：通过 SSE/WebSocket 推送隧道状态、流量与日志。
 - **多维度图表**：小时/日/周等趋势统计，并支持更细粒度的详情查看。
-- **强大的 NodePass 管理能力**：端点、隧道、服务一站式管理（批量操作、排序等）。
+- **强大的隧道管理能力**：端点、隧道、服务一站式管理（批量操作、排序等）。
 - **场景化创建/模板向导**：用向导化流程快速生成与创建常见配置，降低出错率。
 - **支持 OAuth2 登录**：可配置（如 GitHub / Cloudflare），并可选择禁用密码登录。
 - **i18n 国际化**：内置多语言支持。
@@ -34,10 +34,8 @@ NB面板 是一个现代化的 **NodePass** 管理面板，用于集中管理端
 
 ## 文档
 
-- 迁移指南：[MIGRATION.md](MIGRATION.md)
-- Docker 部署：[DOCKER.md](DOCKER.md)
-- 二进制部署：[BINARY.md](BINARY.md)
-- 开发环境：[DEVELOPMENT.md](DEVELOPMENT.md)
+- [一键安装脚本](../scripts/install.sh)
+- Docker 部署：`ghcr.io/lima-droid/nb-panel:latest`
 
 ## 命令行参数
 

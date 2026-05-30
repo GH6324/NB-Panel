@@ -33,16 +33,14 @@ bash <(wget -qO- https://raw.githubusercontent.com/lima-droid/NB-Panel/main/scri
 ```
 
 - **One-liner install:** `scripts/install.sh`
-- **Binary + systemd:** `docs/en/BINARY.md`
-- **Docker:** `docs/en/DOCKER.md`
-- **Development:** `docs/en/DEVELOPMENT.md`
 
 ## Documentation
 
-- **Migration Guide:** [docs/en/MIGRATION.md](docs/en/MIGRATION.md)
-- **Docker Guide:** [docs/en/DOCKER.md](docs/en/DOCKER.md)
-- **Binary Guide:** [docs/en/BINARY.md](docs/en/BINARY.md)
-- **Development Guide:** [docs/en/DEVELOPMENT.md](docs/en/DEVELOPMENT.md)
+See [scripts/install.sh](scripts/install.sh) for one-click install, or use the Docker image:
+
+```bash
+docker run -d --name nbpanel -p 4000:4000 ghcr.io/lima-droid/nb-panel:latest
+```
 
 ## CLI Flags
 

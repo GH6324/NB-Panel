@@ -1,4 +1,4 @@
-# NB面板 Docker镜像 - 基于 NodePassDash 3.4.0-beta3
+# NB面板 Docker镜像
 # 端口: 4000 | 开源: https://github.com/lima-droid/NB-Panel
 
 # ========= 前端构建阶段 =========

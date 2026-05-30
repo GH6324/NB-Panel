@@ -7,20 +7,18 @@
 ![Version](https://img.shields.io/badge/version-3.4.2-blue.svg)
 ![GitHub license](https://img.shields.io/github/license/lima-droid/NB-Panel)
 
-NB面板 is a modern web dashboard for managing **NB面板** endpoints, tunnels, and services. It ships as a single Go binary (Gin + GORM + SQLite) with an embedded React (Vite + TypeScript + HeroUI) frontend, and provides real-time telemetry via SSE/WebSocket.
+NB面板 是一个轻量级隧道管理面板，单二进制文件部署，Go 后端 + React 前端，SQLite 存储，开箱即用。
 
-## Highlights
+## 功能
 
-- **Modern, clean dashboard**: responsive UI built with React + Vite + TypeScript + HeroUI.
-- **Real-time monitoring**: SSE/WebSocket updates for tunnel status, traffic, and logs.
-- **Multi-dimensional charts**: traffic trends (hour/day/week) with detailed drill-down views.
-- **Powerful endpoint management**: endpoints, tunnels, and services in one place (including batch actions & sorting).
-- **Scenario-based creation**: guided wizards/templates to create common setups faster and safer.
-- **OAuth2 login support**: configure Cloudflare OAuth2 and optionally disable password login.
-- **i18n**: built-in multilingual UI support.
-- **Personalization**: privacy mode, theme/language onboarding, and configurable experience.
-- **Operational tooling**: file-log viewer, network debugging utilities, and endpoint system stats charts.
-- **Mobile-friendly workflows**: QR code output for importing into the mobile app.
+- **端点管理**：统一管理所有 NodePass 端点，支持批量操作、排序、搜索
+- **隧道管理**：可视化创建和编辑隧道，支持多种协议和场景模板
+- **实时监控**：SSE/WebSocket 推送隧道状态、流量、日志
+- **流量图表**：小时/日/周多维度流量趋势
+- **OAuth2 登录**：支持 Cloudflare OAuth2，可关闭密码登录
+- **多语言**：内置中英文界面
+- **移动端友好**：响应式布局，支持二维码导入移动端 App
+- **运维工具**：日志查看器、网络调试、系统状态图表
 
 [Full changelog →](https://github.com/lima-droid/NB-Panel/releases)
 

@@ -6,16 +6,17 @@ FROM node:22-alpine AS frontend-builder
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV CI=true
+ENV PNPM_HOME="/pnpm"
 WORKDIR /app
 
 COPY web/ ./web/
 
 RUN cd web && \
-    pnpm install --frozen-lockfile --prod=false --ignore-scripts && \
+    pnpm install --prod=false --ignore-scripts && \
     pnpm build
 
 # ========= Go 构建阶段 =========
-FROM golang:1.25-alpine AS backend-builder
+FROM golang:1.23-alpine AS backend-builder
 ARG VERSION=dev
 WORKDIR /app
 

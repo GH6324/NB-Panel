@@ -3,17 +3,13 @@
 
 # ========= 前端构建阶段 =========
 FROM node:22-alpine AS frontend-builder
-
-RUN corepack enable && corepack prepare pnpm@latest --activate
-ENV CI=true
-ENV PNPM_HOME="/pnpm"
 WORKDIR /app
 
 COPY web/ ./web/
 
 RUN cd web && \
-    pnpm install --prod=false --ignore-scripts && \
-    pnpm build
+    npm install --ignore-scripts && \
+    npm run build
 
 # ========= Go 构建阶段 =========
 FROM golang:1.23-alpine AS backend-builder
@@ -25,7 +21,6 @@ RUN apk add --no-cache git gcc g++ make musl-dev sqlite-dev
 COPY go.mod go.sum ./
 
 ENV GOPROXY=https://goproxy.cn,https://goproxy.io,https://proxy.golang.org,direct
-ENV GOSUMDB=sum.golang.org
 
 RUN go mod download
 

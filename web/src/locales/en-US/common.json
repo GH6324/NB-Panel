@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "NB Panel",
-    "slogan": "NodePass Management Dashboard"
+    "slogan": "NB Management Dashboard"
   },
   "nav": {
     "dashboard": "Dashboard",

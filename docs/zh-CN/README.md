@@ -38,5 +38,6 @@ docker run -d --name nbpanel -p 4000:4000 ghcr.io/lima-droid/nb-panel:v3.4.2
 
 ## 链接
 
-- Issues: https://github.com/lima-droid/NB-Panel/issues
 - Telegram: https://t.me/NBPanel
+- Issues: https://github.com/lima-droid/NB-Panel/issues
+

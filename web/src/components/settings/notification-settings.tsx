@@ -151,6 +151,40 @@ export default function NotificationSettings() {
             </Button>
           </div>
 
+          {/* Telegram 通知 */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <Icon icon="logos:telegram" width={24} />
+                <div>
+                  <h4 className="text-base font-medium">Telegram 通知</h4>
+                  <p className="text-sm text-default-500">
+                    通过 Telegram Bot 发送通知
+                  </p>
+                </div>
+              </div>
+              <Switch defaultSelected />
+            </div>
+            <Divider />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-default-700">Bot Token</label>
+                <Input
+                  placeholder="输入 Telegram Bot Token"
+                  type="password"
+                  variant="bordered"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-default-700">Chat ID</label>
+                <Input placeholder="输入 Chat ID" variant="bordered" />
+              </div>
+              <Button color="primary" size="sm">
+                测试通知
+              </Button>
+            </div>
+          </div>
+
           {/* 企业微信通知 */}
           <div className="border rounded-lg p-4 space-y-4">
             <div className="flex justify-between items-start">
@@ -441,7 +475,7 @@ export default function NotificationSettings() {
                 </div>
                 <div>
                   <p className="font-medium">通知渠道</p>
-                  <p className="text-default-500">企业微信</p>
+                  <p className="text-default-500">Telegram, 企业微信</p>
                 </div>
               </div>
             </div>
@@ -476,7 +510,7 @@ export default function NotificationSettings() {
                 </div>
                 <div>
                   <p className="font-medium">通知渠道</p>
-                  <p className="text-default-500">钉钉</p>
+                  <p className="text-default-500">Telegram, 钉钉</p>
                 </div>
               </div>
             </div>

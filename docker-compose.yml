@@ -1,20 +1,13 @@
+# NB面板 Docker Compose 配置
+# 开源: https://github.com/lima-droid/NB-Panel
+
 services:
-  nb-panel:
+  nbpanel:
     image: ghcr.io/lima-droid/nb-panel:latest
-    container_name: nb-panel
+    container_name: nbpanel
     ports:
       - "4000:4000"
-    environment:
-      - PORT=4000
-    # - LOG-LEVEL=INFO
-    # - TLS_CERT=/path/to/cert.pem
-    # - TLS_KEY=***
-    # - DISABLE_LOGIN=true
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      # TLS certificates
-      # - /path/to/cert.pem:/path/to/cert.pem
-      # - /path/to/key.pem:/path/to/key.pem
       - ./db:/app/db
       - ./logs:/app/logs
     restart: unless-stopped
@@ -22,5 +15,5 @@ services:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/api/health"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 3
+      start_period: 30s

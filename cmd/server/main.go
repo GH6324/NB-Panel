@@ -1,17 +1,17 @@
 package main
 
 import (
-	"NB-Panel/internal/auth"
-	"NB-Panel/internal/dashboard"
-	dbPkg "NB-Panel/internal/db"
-	"NB-Panel/internal/endpoint"
-	// "NB-Panel/internal/lifecycle"
-	log "NB-Panel/internal/log"
-	"NB-Panel/internal/nodepass"
-	"NB-Panel/internal/router"
-	"NB-Panel/internal/sse"
-	"NB-Panel/internal/tunnel"
-	"NB-Panel/internal/websocket"
+	"NodePassDash/internal/auth"
+	"NodePassDash/internal/dashboard"
+	dbPkg "NodePassDash/internal/db"
+	"NodePassDash/internal/endpoint"
+	// "NodePassDash/internal/lifecycle"
+	log "NodePassDash/internal/log"
+	"NodePassDash/internal/nodepass"
+	"NodePassDash/internal/router"
+	"NodePassDash/internal/sse"
+	"NodePassDash/internal/tunnel"
+	"NodePassDash/internal/websocket"
 	"context"
 	"embed"
 	"flag"
@@ -54,7 +54,7 @@ func serveStaticFile(c *gin.Context, fsys fs.FS, fileName, contentType string) {
 }
 
 // parseFlags 解析命令行参数并处理基础配置
-func parseFlags() (resetPwd bool, port, certFile, keyFile string, showVersion, disableLogin, sseDebugLog bool) {
+func parseFlags() (resetPwd bool, port, certFile, keyFile string, showVersion, disableLogin, sseDebugLog, disableSSELog, demoMode bool) {
 	// 命令行参数处理
 	resetPwdCmd := flag.Bool("resetpwd", false, "重置管理员密码")
 	portFlag := flag.String("port", "", "HTTP 服务端口 (优先级高于环境变量 PORT)，默认 3000")
@@ -68,6 +68,10 @@ func parseFlags() (resetPwd bool, port, certFile, keyFile string, showVersion, d
 	disableLoginFlag := flag.Bool("disable-login", false, "禁用用户名密码登录，仅允许 OAuth2 登录")
 	// SSE 调试日志参数
 	sseDebugLogFlag := flag.Bool("sse-debug-log", false, "启用 SSE 消息调试日志")
+	// 禁用 SSE 日志记录参数
+	disableSSELogFlag := flag.Bool("disable-sse-log", false, "禁用 SSE 日志记录到文件")
+	// Demo 模式参数
+	demoModeFlag := flag.Bool("demo", false, "启用演示模式（默认密码为 Np123456. 并每天自动重置）")
 
 	flag.Parse()
 
@@ -120,7 +124,25 @@ func parseFlags() (resetPwd bool, port, certFile, keyFile string, showVersion, d
 		}
 	}
 
-	return *resetPwdCmd, port, certFile, keyFile, *versionFlag || *vFlag, disableLogin, sseDebugLog
+	// 设置禁用 SSE 日志记录配置
+	// 优先级：命令行参数 > 环境变量
+	disableSSELog = *disableSSELogFlag
+	if !disableSSELog {
+		if env := os.Getenv("DISABLE_SSE_LOG"); env == "true" || env == "1" {
+			disableSSELog = true
+		}
+	}
+
+	// 设置 Demo 模式配置
+	// 优先级：命令行参数 > 环境变量
+	demoMode = *demoModeFlag
+	if !demoMode {
+		if env := os.Getenv("DEMO_MODE"); env == "true" || env == "1" {
+			demoMode = true
+		}
+	}
+
+	return *resetPwdCmd, port, certFile, keyFile, *versionFlag || *vFlag, disableLogin, sseDebugLog, disableSSELog, demoMode
 }
 
 // setupStaticFiles 配置静态文件服务
@@ -146,14 +168,13 @@ func setupStaticFiles(ginRouter *gin.Engine) error {
 		serveStaticFile(c, distSubFS, "favicon.ico", "image/x-icon")
 	})
 
+	// 处理 PNG 图标文件
 	ginRouter.GET("/apple-touch-icon.png", func(c *gin.Context) {
 		serveStaticFile(c, distSubFS, "apple-touch-icon.png", "image/png")
 	})
-
 	ginRouter.GET("/icon-192.png", func(c *gin.Context) {
 		serveStaticFile(c, distSubFS, "icon-192.png", "image/png")
 	})
-
 	ginRouter.GET("/icon-512.png", func(c *gin.Context) {
 		serveStaticFile(c, distSubFS, "icon-512.png", "image/png")
 	})
@@ -202,14 +223,21 @@ func setupStaticFiles(ginRouter *gin.Engine) error {
 }
 
 // initializeServices 初始化所有服务
-func initializeServices(sseDebugLog bool) (*gorm.DB, *auth.Service, *endpoint.Service, *tunnel.Service, *dashboard.Service, *sse.Service, *sse.Manager, *websocket.Service, error) {
+func initializeServices(sseDebugLog, disableSSELog, demoMode bool) (*gorm.DB, *auth.Service, *endpoint.Service, *tunnel.Service, *dashboard.Service, *sse.Service, *sse.Manager, *websocket.Service, error) {
 	// 获取GORM数据库连接
 	gormDB := dbPkg.GetDB()
 	log.Info("数据库连接成功")
 
 	// 系统初始化（首次启动输出初始用户名和密码） - 在所有其他初始化之前
 	authService := auth.NewService(gormDB)
-	if _, _, err := authService.InitializeSystem(); err != nil && err.Error() != "系统已初始化" {
+
+	// 如果启用 Demo 模式，需要在系统初始化前设置
+	if demoMode {
+		authService.SetDemoMode(true)
+		log.Info("🎭 Demo 模式已启用")
+	}
+
+	if _, _, err := authService.InitializeSystem(); err != nil && err.Error() != "system is already initialized" {
 		log.Errorf("系统初始化失败: %v", err)
 	}
 
@@ -226,7 +254,7 @@ func initializeServices(sseDebugLog bool) (*gorm.DB, *auth.Service, *endpoint.Se
 	dashboardService := dashboard.NewService(gormDB)
 
 	// 创建SSE服务和管理器（延迟启动避免数据库竞争）
-	sseService := sse.NewService(gormDB, endpointService)
+	sseService := sse.NewService(gormDB, endpointService, disableSSELog)
 	// 临时解决方案：从GORM获取底层的sql.DB用于SSE Manager
 	sqlDB, err := gormDB.DB()
 	if err != nil {
@@ -260,14 +288,14 @@ func startHTTPServer(ginRouter *gin.Engine, port, certFile, keyFile string) *htt
 	// 启动HTTP/HTTPS服务器
 	go func() {
 		if certFile != "" && keyFile != "" {
-			log.Infof("NB面板[%s] 启动在 https://localhost:%s (TLS)", Version, port)
+			log.Infof("NodePassDash[%s] 启动在 https://localhost:%s (TLS)", Version, port)
 			if err := server.ListenAndServeTLS(certFile, keyFile); err != http.ErrServerClosed {
 				log.Errorf("HTTPS 服务器错误: %v", err)
 			}
 			return
 		}
 
-		log.Infof("NB面板[%s] 启动在 http://localhost:%s", Version, port)
+		log.Infof("NodePassDash[%s] 启动在 http://localhost:%s", Version, port)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Errorf("HTTP 服务器错误: %v", err)
 		}
@@ -350,11 +378,11 @@ func gracefulShutdown(server *http.Server, trafficScheduler *dashboard.TrafficSc
 }
 
 func main() {
-	resetPwd, port, certFile, keyFile, showVersion, disableLogin, sseDebugLog := parseFlags()
+	resetPwd, port, certFile, keyFile, showVersion, disableLogin, sseDebugLog, disableSSELog, demoMode := parseFlags()
 
 	// 如果指定了版本参数，显示版本信息后退出
 	if showVersion {
-		fmt.Printf("NB面板 %s\n", Version)
+		fmt.Printf("NodePassDash %s\n", Version)
 		fmt.Printf("Go version: %s\n", runtime.Version())
 		fmt.Printf("OS/Arch: %s/%s\n", runtime.GOOS, runtime.GOARCH)
 		return
@@ -372,7 +400,7 @@ func main() {
 	}
 
 	// 初始化所有服务
-	gormDB, authService, endpointService, tunnelService, dashboardService, sseService, sseManager, wsService, err := initializeServices(sseDebugLog)
+	gormDB, authService, endpointService, tunnelService, dashboardService, sseService, sseManager, wsService, err := initializeServices(sseDebugLog, disableSSELog, demoMode)
 	if err != nil {
 		log.Errorf("服务初始化失败: %v", err)
 		return
@@ -414,6 +442,12 @@ func main() {
 		if err := authService.SetSystemConfig("disable_login", "false"); err != nil {
 			log.Errorf("重置 disable-login 配置失败: %v", err)
 		}
+	}
+
+	// 设置并启动 Demo 模式定时任务
+	if demoMode {
+		// 启动定时任务（每天凌晨重置密码）
+		authService.StartDemoModeScheduler()
 	}
 
 	// 启动SSE系统

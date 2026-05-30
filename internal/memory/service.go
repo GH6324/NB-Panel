@@ -1,9 +1,9 @@
 package memory
 
 import (
-	log "NB-Panel/internal/log"
-	"NB-Panel/internal/models"
-	"NB-Panel/internal/traffic"
+	log "NodePassDash/internal/log"
+	"NodePassDash/internal/models"
+	"NodePassDash/internal/traffic"
 	"context"
 	"fmt"
 	"sync"

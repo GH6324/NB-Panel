@@ -1,9 +1,6 @@
 package auth
 
-import (
-	"os"
-	"time"
-)
+import "time"
 
 // LoginRequest 登录请求结构
 type LoginRequest struct {
@@ -43,14 +40,7 @@ const (
 
 // 默认账号密码常量
 const (
-	DefaultAdminUsername = "nbpanel"
-	DefaultAdminPassword = "Np123456"
+	DefaultAdminUsername     = "nodepass"
+	DefaultAdminPassword     = "Np123456"
+	DemoModeAdminPassword    = "Np123456."  // Demo 模式专用密码
 )
-
-// GetDefaultAdminPassword 从环境变量 NB_PANEL_ADMIN_PASSWORD 读取默认管理员密码，默认 "Np123456"
-func GetDefaultAdminPassword() string {
-	if pwd := os.Getenv("NB_PANEL_ADMIN_PASSWORD"); pwd != "" {
-		return pwd
-	}
-	return DefaultAdminPassword
-}

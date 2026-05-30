@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "NB面板",
-    "slogan": "NB面板 Management Dashboard"
+    "name": "NB Panel",
+    "slogan": "NodePass Management Dashboard"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -81,6 +81,10 @@
     "no": "No",
     "enabled": "Enabled",
     "disabled": "Disabled"
+  },
+  "logViewer": {
+    "loading": "Loading logs...",
+    "noLogs": "No logs"
   },
   "time": {
     "second": "second",
@@ -169,7 +173,7 @@
     "copyright": "NB Panel © 2026",
     "version": "v",
     "poweredBy": "Powered by",
-    "poweredByLink": "NB面板",
+    "poweredByLink": "XiYin Network",
     "poweredBySuffix": ""
   },
   "navbarUser": {

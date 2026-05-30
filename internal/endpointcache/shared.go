@@ -1,9 +1,9 @@
 package endpointcache
 
 import (
-	log "NB-Panel/internal/log"
-	"NB-Panel/internal/models"
-	"NB-Panel/internal/nodepass"
+	log "NodePassDash/internal/log"
+	"NodePassDash/internal/models"
+	"NodePassDash/internal/nodepass"
 	"fmt"
 	"sort"
 	"sync"

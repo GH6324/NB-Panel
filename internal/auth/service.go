@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"NB-Panel/internal/models"
+	"NodePassDash/internal/models"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -30,11 +30,20 @@ type Service struct {
 	db         *gorm.DB
 	currentJTI string        // 当前有效的 JWT ID（内存存储，避免启动时SQLite锁）
 	jtiMutex   sync.RWMutex  // JTI 读写锁
+	demoMode   bool          // Demo 模式开关
 }
 
 // NewService 创建认证服务实例，需要传入GORM数据库连接
 func NewService(db *gorm.DB) *Service {
-	return &Service{db: db}
+	return &Service{
+		db:       db,
+		demoMode: false,
+	}
+}
+
+// SetDemoMode 设置 Demo 模式
+func (s *Service) SetDemoMode(enabled bool) {
+	s.demoMode = enabled
 }
 
 // HashPassword 密码加密
@@ -64,7 +73,7 @@ func (s *Service) GetSystemConfig(key string) (string, error) {
 	err := s.db.Where("`key` = ?", key).First(&config).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", errors.New("配置不存在")
+			return "", errors.New("configuration does not exist")
 		}
 		return "", err
 	}
@@ -240,13 +249,13 @@ func (s *Service) GetSessionUser(sessionID string) (string, error) {
 	err := s.db.Where("session_id = ?", sessionID).First(&userSession).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", errors.New("会话不存在")
+			return "", errors.New("session does not exist")
 		}
 		return "", err
 	}
 
 	if !userSession.IsActive || time.Now().After(userSession.ExpiresAt) {
-		return "", errors.New("会话已过期")
+		return "", errors.New("session has expired")
 	}
 
 	// 更新缓存
@@ -289,11 +298,16 @@ func (s *Service) CleanupExpiredSessions() {
 // InitializeSystem 初始化系统
 func (s *Service) InitializeSystem() (string, string, error) {
 	if s.IsSystemInitialized() {
-		return "", "", errors.New("系统已初始化")
+		return "", "", errors.New("system is already initialized")
 	}
 
 	username := DefaultAdminUsername
-	password := GetDefaultAdminPassword()
+	password := DefaultAdminPassword
+
+	// Demo 模式使用特定密码
+	if s.demoMode {
+		password = DemoModeAdminPassword
+	}
 
 	passwordHash, err := s.HashPassword(password)
 	if err != nil {
@@ -314,11 +328,20 @@ func (s *Service) InitializeSystem() (string, string, error) {
 	// 日志输出
 	// 重要: 输出初始密码
 	fmt.Println("================================")
-	fmt.Println("🚀 NodePass 系统初始化完成！")
+	if s.demoMode {
+		fmt.Println("🎭 NodePass 演示模式初始化完成！")
+	} else {
+		fmt.Println("🚀 NodePass 系统初始化完成！")
+	}
 	fmt.Println("================================")
 	fmt.Println("管理员账户信息：")
 	fmt.Println("用户名:", username)
-	fmt.Println("密码:", password[:1]+"******")
+	fmt.Println("密码:", password)
+	if s.demoMode {
+		fmt.Println("================================")
+		fmt.Println("⚠️  演示模式已启用！")
+		fmt.Println("密码将每天自动重置为:", DemoModeAdminPassword)
+	}
 	fmt.Println("================================")
 	fmt.Println("⚠️  请妥善保存这些信息！")
 	fmt.Println("================================")
@@ -378,42 +401,42 @@ func generateRandomPassword(length int) string {
 func (s *Service) ChangePassword(username, currentPassword, newPassword string) (bool, string) {
 	// 验证当前密码
 	if !s.AuthenticateUser(username, currentPassword) {
-		return false, "当前密码不正确"
+		return false, "current password is incorrect"
 	}
 
 	// 验证新密码不能与默认密码相同
 	if newPassword == DefaultAdminPassword {
-		return false, "新密码不能与默认密码相同，请设置一个安全的密码"
+	return false, "new password cannot be the same as default password, please set a secure password"
 	}
 
 	// 加密新密码
 	hash, err := s.HashPassword(newPassword)
 	if err != nil {
-		return false, "密码加密失败"
+		return false, "password encryption failed"
 	}
 
 	// 更新系统配置
 	if err := s.SetSystemConfig(ConfigKeyAdminPassword, hash); err != nil {
-		return false, "更新密码失败"
+		return false, "password update failed"
 	}
 
 	// 使所有现有 Session 失效
 	s.invalidateAllSessions()
-	return true, "密码修改成功"
+	return true, "password changed successfully"
 }
 
 // ChangeUsername 修改用户名
 func (s *Service) ChangeUsername(currentUsername, newUsername string) (bool, string) {
 	storedUsername, _ := s.GetSystemConfig(ConfigKeyAdminUsername)
 	if currentUsername != storedUsername {
-		return false, "当前用户名不正确"
+		return false, "current username is incorrect"
 	}
 
 	// 允许设置任何用户名，包括默认用户名
 
 	// 更新系统配置中的用户名
 	if err := s.SetSystemConfig(ConfigKeyAdminUsername, newUsername); err != nil {
-		return false, "更新用户名失败"
+		return false, "username update failed"
 	}
 
 	// 更新数据库中的会话记录
@@ -431,19 +454,19 @@ func (s *Service) ChangeUsername(currentUsername, newUsername string) (bool, str
 
 	// 使所有现有 Session 失效
 	s.invalidateAllSessions()
-	return true, "用户名修改成功"
+	return true, "username changed successfully"
 }
 
 // UpdateSecurity 同时修改用户名和密码
 func (s *Service) UpdateSecurity(currentUsername, currentPassword, newUsername, newPassword string) (bool, string) {
 	// 验证当前用户身份
 	if !s.AuthenticateUser(currentUsername, currentPassword) {
-		return false, "当前密码不正确"
+		return false, "current password is incorrect"
 	}
 
 	// 验证新密码不能与默认密码相同
 	if newPassword == DefaultAdminPassword {
-		return false, "新密码不能与默认密码相同，请设置一个安全的密码"
+	return false, "new password cannot be the same as default password, please set a secure password"
 	}
 
 	// 允许设置任何用户名，包括默认用户名
@@ -451,19 +474,19 @@ func (s *Service) UpdateSecurity(currentUsername, currentPassword, newUsername, 
 	// 加密新密码
 	hash, err := s.HashPassword(newPassword)
 	if err != nil {
-		return false, "密码加密失败"
+		return false, "password encryption failed"
 	}
 
 	// 更新用户名
 	if err := s.SetSystemConfig(ConfigKeyAdminUsername, newUsername); err != nil {
-		return false, "更新用户名失败"
+		return false, "username update failed"
 	}
 
 	// 更新密码
 	if err := s.SetSystemConfig(ConfigKeyAdminPassword, hash); err != nil {
 		// 如果密码更新失败，回滚用户名
 		s.SetSystemConfig(ConfigKeyAdminUsername, currentUsername)
-		return false, "更新密码失败"
+		return false, "password update failed"
 	}
 
 	// 更新数据库中的会话记录
@@ -481,7 +504,7 @@ func (s *Service) UpdateSecurity(currentUsername, currentPassword, newUsername, 
 
 	// 使所有现有 Session 失效
 	s.invalidateAllSessions()
-	return true, "账号信息修改成功"
+	return true, "account information updated successfully"
 }
 
 // ResetAdminPassword 重置管理员密码并返回新密码
@@ -489,13 +512,13 @@ func (s *Service) ResetAdminPassword() (string, string, error) {
 	// 确认系统已初始化
 	initialized := s.IsSystemInitialized()
 	if !initialized {
-		return "", "", errors.New("系统未初始化，无法重置密码")
+		return "", "", errors.New("system is not initialized, cannot reset password")
 	}
 
 	// 读取当前用户名
 	username, err := s.GetSystemConfig(ConfigKeyAdminUsername)
 	if err != nil || username == "" {
-		username = DefaultAdminUsername
+		username = "nodepass"
 	}
 
 	// 生成新密码
@@ -518,7 +541,7 @@ func (s *Service) ResetAdminPassword() (string, string, error) {
 	fmt.Println("🔐 NodePass 管理员密码已重置！")
 	fmt.Println("================================")
 	fmt.Println("用户名:", username)
-	fmt.Println("新密码:", newPassword[:1]+"******")
+	fmt.Println("新密码:", newPassword)
 	fmt.Println("================================")
 	fmt.Println("⚠️  请尽快登录并修改此密码！")
 	fmt.Println("================================")
@@ -560,14 +583,14 @@ func (s *Service) SaveOAuthUser(provider, providerID, username, dataJSON string)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// 当前 provider 没有用户，但其他 provider 有用户，不允许登录
-				return errors.New("系统已绑定其他 OAuth2 用户，不允许使用不同的 OAuth2 账户登录")
+				return errors.New("system has been bound to other OAuth2 users, different OAuth2 accounts are not allowed to login")
 			}
 			return err
 		}
 
 		// 如果是不同的用户ID，拒绝登录
 		if existingUser.ProviderID != providerID {
-			return errors.New("系统已绑定其他 OAuth2 用户，不允许使用不同的账户登录")
+			return errors.New("system has been bound to other OAuth2 users, different accounts are not allowed to login")
 		}
 	}
 
@@ -639,4 +662,57 @@ func (s *Service) ClearCurrentJTI() {
 	s.jtiMutex.Lock()
 	defer s.jtiMutex.Unlock()
 	s.currentJTI = ""
+}
+
+// ResetDemoPassword 重置 Demo 模式密码为默认值
+func (s *Service) ResetDemoPassword() error {
+	if !s.demoMode {
+		return errors.New("not in demo mode")
+	}
+
+	// 生成密码哈希
+	passwordHash, err := s.HashPassword(DemoModeAdminPassword)
+	if err != nil {
+		return fmt.Errorf("hash password failed: %v", err)
+	}
+
+	// 更新密码
+	if err := s.SetSystemConfig(ConfigKeyAdminPassword, passwordHash); err != nil {
+		return fmt.Errorf("update password failed: %v", err)
+	}
+
+	fmt.Println("================================")
+	fmt.Println("🎭 Demo 模式密码已重置")
+	fmt.Println("================================")
+	fmt.Println("用户名:", DefaultAdminUsername)
+	fmt.Println("密码:", DemoModeAdminPassword)
+	fmt.Println("================================")
+
+	return nil
+}
+
+// StartDemoModeScheduler 启动 Demo 模式定时任务（每天凌晨重置密码）
+func (s *Service) StartDemoModeScheduler() {
+	if !s.demoMode {
+		return
+	}
+
+	fmt.Println("🎭 Demo 模式定时任务已启动，将在每天凌晨 00:00 重置密码")
+
+	go func() {
+		for {
+			// 计算到下一个凌晨 00:00 的时间
+			now := time.Now()
+			nextMidnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
+			duration := nextMidnight.Sub(now)
+
+			// 等待到凌晨
+			time.Sleep(duration)
+
+			// 重置密码
+			if err := s.ResetDemoPassword(); err != nil {
+				fmt.Printf("❌ Demo 模式密码重置失败: %v\n", err)
+			}
+		}
+	}()
 }

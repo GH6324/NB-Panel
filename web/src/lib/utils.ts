@@ -53,7 +53,7 @@ export function buildWsUrl(path: string): string {
 
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("nb-panel.token");
+  return localStorage.getItem("nodepass.token");
 }
 
 // 实例缓存

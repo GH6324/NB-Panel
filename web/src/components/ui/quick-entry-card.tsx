@@ -55,6 +55,7 @@ export function QuickEntryCard() {
       external: false,
     },
     {
+    {
       id: "debug-tools",
       icon: faBug,
       label: t("quickActions.debugTools"),

@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - esbuild
+  - "@tailwindcss/oxide"
+  - sharp
+  - "@heroui/shared-utils"

@@ -520,5 +520,53 @@
       "cleanupNetworkError": "Failed to start cleanup task, please check network connection"
     },
     "loading": "Loading log cleanup settings..."
+  },
+  "version": {
+    "title": "Version Update",
+    "description": "Check and manage system version",
+    "current": {
+      "title": "Version Information",
+      "current": "Current",
+      "stable": "Stable",
+      "beta": "Beta",
+      "system": "System",
+      "checkUpdate": "Check for Updates"
+    },
+    "deployment": {
+      "title": "Deployment Environment",
+      "docker": "Docker Deployment",
+      "binary": "Binary Deployment",
+      "autoUpdateStable": "Auto Update to Stable",
+      "autoUpdateBeta": "Auto Update to Beta",
+      "manualUpdate": "Manual Update",
+      "dockerDetails": "Docker environment update through container orchestration",
+      "dockerManualDetails": "Docker environment recommended to update via host commands for stable and reliable updates",
+      "binaryDetails": "Will download the latest binary file and replace automatically",
+      "unknownDetails": "Please check the update instructions for manual update"
+    },
+    "updateInstructions": {
+      "title": "Update Instructions:",
+      "docker": {
+        "desc": "Execute the following commands on Docker host:",
+        "pull": "# Pull latest image",
+        "restart": "# Restart container"
+      },
+      "binary": {
+        "auto": "Click the button above to automatically update",
+        "autoDesc": "The program will automatically download, stop, replace, and restart",
+        "manual": "Or manually update: Download from GitHub → Stop program → Replace files → Restart"
+      }
+    },
+    "modal": {
+      "title": "Version Update Details",
+      "prerelease": "(Beta)",
+      "publishedAt": "Published on",
+      "close": "Close",
+      "viewDetails": "View Details"
+    },
+    "alert": {
+      "updateStarted": "Update started: {{message}}\n\nThe program will automatically restart in a few seconds, please wait...",
+      "updateFailed": "Update failed: {{error}}"
+    }
   }
 }

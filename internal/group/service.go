@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"NB-Panel/internal/models"
+	"NodePassDash/internal/models"
 
 	"gorm.io/gorm"
 )

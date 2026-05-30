@@ -111,6 +111,7 @@ interface TunnelInfo {
   dns?: string | null;
   sni?: string | null;
   block?: number | null;
+  lbs?: number | null;
   targetPort: number;
   tlsMode: string;
   commandLine: string;
@@ -135,7 +136,7 @@ interface TunnelInfo {
   udpRx: number;
   udpTx: number;
   udps: number | null;
-  nbPanelInfo: any;
+  nodepassInfo: any;
   error?: string;
   instanceTags?: { [key: string]: string }; // 兼容原有逻辑，改为对象形式
 }
@@ -2399,6 +2400,26 @@ export default function TunnelDetailPage() {
                       if (blockType === 2) return t("details.instanceInfo.block.http");
                       if (blockType === 3) return t("details.instanceInfo.block.tls");
                       return t("details.instanceInfo.block.notSet");
+                    })()
+                  }
+                />
+                <CellValue
+                  icon={
+                    <Icon
+                      className="text-default-600"
+                      height={18}
+                      icon="lucide:share-2"
+                      width={18}
+                    />
+                  }
+                  label={t("details.instanceInfo.lbs.label")}
+                  value={
+                    (() => {
+                      const lbsType = tunnelInfo?.lbs;
+                      if (lbsType === 0) return t("details.instanceInfo.lbs.roundRobin");
+                      if (lbsType === 1) return t("details.instanceInfo.lbs.leastLatency");
+                      if (lbsType === 2) return t("details.instanceInfo.lbs.failover");
+                      return t("details.instanceInfo.lbs.notSet");
                     })()
                   }
                 />

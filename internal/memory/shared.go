@@ -1,7 +1,7 @@
 package memory
 
 import (
-	"NB-Panel/internal/models"
+	"NodePassDash/internal/models"
 	"sync"
 	"time"
 )

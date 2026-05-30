@@ -1,9 +1,9 @@
 package scheduler
 
 import (
-	"NB-Panel/internal/cleanup"
-	log "NB-Panel/internal/log"
-	"NB-Panel/internal/models"
+	"NodePassDash/internal/cleanup"
+	log "NodePassDash/internal/log"
+	"NodePassDash/internal/models"
 	"context"
 	"fmt"
 	"sync"

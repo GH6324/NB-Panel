@@ -1,8 +1,8 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "NB面板",
-  description: "NB面板 - NP隧道管理控制面板",
+  name: "NodePassDash",
+  description: "A modern and secure tunnel dashboard.",
   navItems: [
     {
       label: "仪表盘",
@@ -28,7 +28,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "",
-    docs: "",
+    github: "https://github.com/ultrathink/nodepass",
+    docs: "https://nodepass.ultrathink.org/docs",
   },
 };

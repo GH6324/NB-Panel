@@ -1,7 +1,7 @@
 package services
 
 import (
-	"NB-Panel/internal/models"
+	"NodePassDash/internal/models"
 )
 
 // ServiceResponse API响应

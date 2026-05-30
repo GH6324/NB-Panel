@@ -1,8 +1,8 @@
 package endpoint
 
 import (
-	"NB-Panel/internal/models"
-	"NB-Panel/internal/nodepass"
+	"NodePassDash/internal/models"
+	"NodePassDash/internal/nodepass"
 	"errors"
 	"fmt"
 	"net/url"

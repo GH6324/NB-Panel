@@ -597,7 +597,7 @@ export default function EndpointsPage() {
       const a = document.createElement("a");
 
       a.href = url;
-      a.download = `nb-panel-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `nodepassdash-${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -1247,7 +1247,7 @@ export default function EndpointsPage() {
 
   // 复制安装脚本到剪贴板
   function handleCopyInstallScript() {
-    const cmd = "";
+    const cmd = "bash <(wget -qO- https://raw.githubusercontent.com/lima-droid/NP-Master/main/scripts/np.sh) -i";
 
     copyToClipboard(cmd, t("toast.copyInstallSuccess"), showManualCopyModal);
   }

@@ -29,6 +29,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 
 import { buildApiUrl } from "@/lib/utils";
+// import GitHubOAuthModal from "./github-oauth-modal";
+// import CloudflareOAuthModal from "./cloudflare-oauth-modal";
+// import OAuth2ProviderSelectModal from "./oauth2-provider-select-modal";
 
 // 定义表单验证 schema
 const securitySettingsSchema = z.object({
@@ -84,12 +87,26 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
   // 全局提交状态（用户名/密码/OAuth2 配置共用）
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Cloudflare OAuth2 配置相关状态
+  // OAuth2 配置相关状态
+  const {
+    isOpen: isGitHubOpen,
+    onOpen: onGitHubOpen,
+    onOpenChange: onGitHubOpenChange,
+  } = useDisclosure();
   const {
     isOpen: isCloudflareOpen,
     onOpen: onCloudflareOpen,
     onOpenChange: onCloudflareOpenChange,
   } = useDisclosure();
+
+  const [gitHubConfig, setGitHubConfig] = useState<OAuth2Config>({
+    clientId: "",
+    clientSecret: "",
+    authUrl: "https://github.com/login/oauth/authorize",
+    tokenUrl: "https://github.com/login/oauth/access_token",
+    userInfoUrl: "https://api.github.com/user",
+    userIdPath: "id",
+  });
 
   const [cloudflareConfig, setCloudflareConfig] = useState<OAuth2Config>({
     clientId: "",
@@ -102,7 +119,18 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
   });
 
   // 模拟的配置状态（实际应该从后端获取）
+  const [isGitHubConfigured, setIsGitHubConfigured] = useState(false);
   const [isCloudflareConfigured, setIsCloudflareConfigured] = useState(false);
+
+  // 在 state 部分添加 selectedProvider 和 provider select disclosure
+  const [selectedProvider, setSelectedProvider] = useState<
+    "github" | "cloudflare" | null
+  >(null);
+  const {
+    isOpen: isSelectOpen,
+    onOpen: onSelectOpen,
+    onOpenChange: onSelectOpenChange,
+  } = useDisclosure();
 
   // 初始化表单
   const {
@@ -125,13 +153,16 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
 
         if (!data.success) return;
 
-        const curProvider = data.provider as "cloudflare" | "";
+        const curProvider = data.provider as "github" | "cloudflare" | "";
 
         if (!curProvider) return; // 未绑定
 
-        const cfgData = data;
+        const cfgData = data; // 同一次响应里含配置
 
-        if (curProvider === "cloudflare") {
+        if (curProvider === "github") {
+          setGitHubConfig((prev: any) => ({ ...prev, ...cfgData.config }));
+          setIsGitHubConfigured(true);
+        } else if (curProvider === "cloudflare") {
           setCloudflareConfig((prev: any) => ({ ...prev, ...cfgData.config }));
           setIsCloudflareConfigured(true);
         }
@@ -292,6 +323,48 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
     }
   };
 
+  // GitHub OAuth2 配置保存
+  const handleSaveGitHubConfig = async () => {
+    try {
+      setIsSubmitting(true);
+
+      const redirectUri = `${window.location.origin}/api/oauth2/callback`;
+      const payload = {
+        provider: "github",
+        config: {
+          ...gitHubConfig,
+          redirectUri,
+        },
+      };
+
+      const res = await fetch(buildApiUrl("/api/oauth2/config"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("保存失败");
+
+      addToast({
+        title: t("security.toast.configSaveSuccess"),
+        description: t("security.toast.githubConfigSaved"),
+        color: "success",
+      });
+
+      setIsGitHubConfigured(true);
+      onGitHubOpenChange();
+    } catch (error) {
+      console.error("保存 GitHub 配置失败:", error);
+      addToast({
+        title: t("security.toast.configSaveFailed"),
+        description: t("security.toast.githubConfigError"),
+        color: "danger",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Cloudflare OAuth2 配置保存
   const handleSaveCloudflareConfig = async () => {
     try {
@@ -335,7 +408,7 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
   };
 
   // 解绑处理
-  const handleUnbindProvider = async (provider: "cloudflare") => {
+  const handleUnbindProvider = async (provider: "github" | "cloudflare") => {
     try {
       setIsSubmitting(true);
       const res = await fetch(buildApiUrl("/api/oauth2/config"), {
@@ -348,7 +421,8 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
         description: t("security.toast.unbindSuccessDesc"),
         color: "success",
       });
-      setIsCloudflareConfigured(false);
+      if (provider === "github") setIsGitHubConfigured(false);
+      else setIsCloudflareConfigured(false);
     } catch (e) {
       console.error("解绑失败", e);
       addToast({
@@ -604,16 +678,33 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
         </CardHeader>
         <Divider />
         <CardBody className="p-4">
-          {isCloudflareConfigured ? (
+          {isGitHubConfigured || isCloudflareConfigured ? (
             // 已绑定状态
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Icon
-                  height={24}
-                  icon="simple-icons:cloudflare"
-                  width={24}
-                />
-                <span className="font-medium">Cloudflare</span>
+                {isGitHubConfigured && (
+                  <>
+                    {" "}
+                    <Icon
+                      className="dark:text-white"
+                      height={24}
+                      icon="simple-icons:github"
+                      width={24}
+                    />{" "}
+                    <span className="font-medium">GitHub</span>{" "}
+                  </>
+                )}
+                {isCloudflareConfigured && (
+                  <>
+                    {" "}
+                    <Icon
+                      height={24}
+                      icon="simple-icons:cloudflare"
+                      width={24}
+                    />{" "}
+                    <span className="font-medium">Cloudflare</span>{" "}
+                  </>
+                )}
                 <Chip color="success" size="sm" variant="flat">
                   {t("security.oauth2.bound")}
                 </Chip>
@@ -623,7 +714,11 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
                   color="primary"
                   size="sm"
                   startContent={<Icon icon="solar:settings-bold" width={18} />}
-                  onPress={() => onCloudflareOpen()}
+                  onPress={() => {
+                    // 打开对应配置模态框
+                    if (isGitHubConfigured) onGitHubOpen();
+                    else if (isCloudflareConfigured) onCloudflareOpen();
+                  }}
                 >
                   {t("security.oauth2.configure")}
                 </Button>
@@ -634,7 +729,11 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
                   startContent={
                     <Icon icon="solar:lock-keyhole-unlocked-bold" width={18} />
                   }
-                  onPress={() => handleUnbindProvider("cloudflare")}
+                  onPress={() =>
+                    handleUnbindProvider(
+                      isGitHubConfigured ? "github" : "cloudflare",
+                    )
+                  }
                 >
                   {t("security.oauth2.unbind")}
                 </Button>
@@ -649,7 +748,7 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
                 color="primary"
                 size="sm"
                 startContent={<Icon icon="solar:add-circle-bold" width={18} />}
-                onPress={onCloudflareOpen}
+                onPress={onSelectOpen}
               >
                 {t("security.oauth2.bindButton")}
               </Button>
@@ -658,7 +757,130 @@ const SecuritySettings = forwardRef<SecuritySettingsRef, {}>((props, ref) => {
         </CardBody>
       </Card>
 
-      {/* Cloudflare OAuth2 配置模态框 */}
+      {/* 基本 Provider 选择模态框 - 简化版本，不依赖外部组件 */}
+      <Modal
+        backdrop="blur"
+        isOpen={isSelectOpen}
+        placement="center"
+        onOpenChange={onSelectOpenChange}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>{t("security.oauth2.selectProvider")}</ModalHeader>
+              <ModalBody>
+                <div className="space-y-3">
+                  <Button
+                    fullWidth
+                    startContent={
+                      <Icon icon="simple-icons:github" width={20} />
+                    }
+                    variant="bordered"
+                    onPress={() => {
+                      setSelectedProvider("github");
+                      onGitHubOpen();
+                      onClose();
+                    }}
+                  >
+                    GitHub
+                  </Button>
+                  <Button
+                    fullWidth
+                    startContent={
+                      <Icon icon="simple-icons:cloudflare" width={20} />
+                    }
+                    variant="bordered"
+                    onPress={() => {
+                      setSelectedProvider("cloudflare");
+                      onCloudflareOpen();
+                      onClose();
+                    }}
+                  >
+                    Cloudflare
+                  </Button>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  {t("security.oauth2.github.cancel")}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* GitHub OAuth2 配置模态框 - 简化版 */}
+      <Modal
+        backdrop="blur"
+        isOpen={isGitHubOpen}
+        placement="center"
+        size="2xl"
+        onOpenChange={onGitHubOpenChange}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>
+                <div className="flex items-center  w-full">
+                  <span>{t("security.oauth2.github.title")}</span>
+                  <FontAwesomeIcon
+                    className="text-[12px] text-default-400 hover:text-default-500 cursor-pointer ml-2 inline align-baseline"
+                    icon={faExternalLink}
+                    onClick={(e) => {
+                      window.open(
+                        "https://github.com/settings/developers",
+                        "_blank",
+                      );
+                    }}
+                  />
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                <div className="space-y-4">
+                  <Input
+                    label={t("security.oauth2.github.clientId")}
+                    placeholder={t("security.oauth2.github.clientIdPlaceholder")}
+                    value={gitHubConfig.clientId}
+                    onChange={(e) =>
+                      setGitHubConfig((prev) => ({
+                        ...prev,
+                        clientId: e.target.value,
+                      }))
+                    }
+                  />
+                  <Input
+                    label={t("security.oauth2.github.clientSecret")}
+                    placeholder={t("security.oauth2.github.clientSecretPlaceholder")}
+                    type="password"
+                    value={gitHubConfig.clientSecret}
+                    onChange={(e) =>
+                      setGitHubConfig((prev) => ({
+                        ...prev,
+                        clientSecret: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  {t("security.oauth2.github.cancel")}
+                </Button>
+                <Button
+                  color="primary"
+                  isLoading={isSubmitting}
+                  onPress={handleSaveGitHubConfig}
+                >
+                  {t("security.oauth2.github.save")}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Cloudflare OAuth2 配置模态框 - 简化版 */}
       <Modal
         backdrop="blur"
         isOpen={isCloudflareOpen}

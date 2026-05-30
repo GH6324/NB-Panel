@@ -1,6 +1,6 @@
-# Docker 部署（NB面板）
+# Docker 部署（NodePassDash）
 
-本指南使用 Docker 部署 NB面板。 NB面板 以 **单容器**方式运行（Go API + 内置 Web UI），默认使用 **单端口**（`3000`）。
+本指南使用 Docker 部署 NodePassDash。NodePassDash 以 **单容器**方式运行（Go API + 内置 Web UI），默认使用 **单端口**（`3000`）。
 
 ## 环境要求
 
@@ -12,7 +12,7 @@
 1）准备目录：
 
 ```bash
-mkdir -p nb-panel && cd nb-panel
+mkdir -p nodepassdash && cd nodepassdash
 mkdir -p db logs
 ```
 
@@ -20,9 +20,9 @@ mkdir -p db logs
 
 ```yaml
 services:
-  nb-panel:
-    image: ghcr.io/lima-droid/nb-panel:latest
-    container_name: nb-panel
+  nodepassdash:
+    image: ghcr.io/nodepassproject/nodepassdash:latest
+    container_name: nodepassdash
     ports:
       - "3000:3000"
     volumes:
@@ -48,7 +48,7 @@ docker compose up -d
 首次启动会自动初始化数据库，并在日志中输出初始管理员账号信息：
 
 ```bash
-docker logs nb-panel | grep -E \"初始化完成|initialized|用户名|password\" -n || docker logs nb-panel
+docker logs nodepassdash | grep -E \"初始化完成|initialized|用户名|password\" -n || docker logs nodepassdash
 ```
 
 登录后建议立即在界面中修改密码。
@@ -60,7 +60,7 @@ docker logs nb-panel | grep -E \"初始化完成|initialized|用户名|password\
 ### 端口
 
 - 默认端口：`3000`
-- CLI：`./nb-panel --port 8080`
+- CLI：`./nodepassdash --port 8080`
 - Env：`PORT=8080`
 
 ### TLS（HTTPS）
@@ -68,31 +68,53 @@ docker logs nb-panel | grep -E \"初始化完成|initialized|用户名|password\
 同时提供证书与私钥即可启用 HTTPS：
 
 ```bash
-./nb-panel --cert /path/to/cert.pem --key /path/to/key.pem
+./nodepassdash --cert /path/to/cert.pem --key /path/to/key.pem
 ```
 
 Docker 中可挂载证书并通过 `command:` 传参：
 
 ```yaml
 services:
-  nb-panel:
-    image: ghcr.io/lima-droid/nb-panel:latest
+  nodepassdash:
+    image: ghcr.io/nodepassproject/nodepassdash:latest
     ports: ["443:443"]
     volumes:
       - ./db:/app/db
       - ./logs:/app/logs
       - ./certs/fullchain.pem:/certs/fullchain.pem:ro
       - ./certs/privkey.pem:/certs/privkey.pem:ro
-    command: ["./nb-panel","--port","443","--cert","/certs/fullchain.pem","--key","/certs/privkey.pem"]
+    command: ["./nodepassdash","--port","443","--cert","/certs/fullchain.pem","--key","/certs/privkey.pem"]
 ```
 
 ### 禁用用户名密码登录（仅 OAuth2）
 
 ```bash
-./nb-panel --disable-login
+./nodepassdash --disable-login
 ```
 
 启用前请先在界面中配置好 OAuth2，否则可能会无法登录。
+
+### 禁用 SSE 日志文件记录
+
+默认情况下，NodePassDash 会将隧道的 SSE 事件日志记录到 `logs/` 目录。如果磁盘空间有限或不需要保留日志文件，可以禁用：
+
+```bash
+./nodepassdash --disable-sse-log
+```
+
+或在 docker-compose.yml 中：
+
+```yaml
+services:
+  nodepassdash:
+    image: ghcr.io/nodepassproject/nodepassdash:latest
+    environment:
+      - DISABLE_SSE_LOG=true
+    # 或者使用 command
+    command: ["./nodepassdash","--disable-sse-log"]
+```
+
+**注意：** 禁用后，SSE 日志仍会实时推送到前端界面，但不会保存到文件中。
 
 ## 备份与恢复
 
@@ -117,6 +139,6 @@ docker compose up -d
 ## 排错
 
 - 健康检查：`curl -fsS http://localhost:3000/api/health`
-- 查看日志：`docker logs -f nb-panel`
-- 重置管理员密码（重置后需要重启容器）：`docker exec -it nodepassdash ./nb-panel --resetpwd`
+- 查看日志：`docker logs -f nodepassdash`
+- 重置管理员密码（重置后需要重启容器）：`docker exec -it nodepassdash ./nodepassdash --resetpwd`
 

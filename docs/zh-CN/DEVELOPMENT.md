@@ -32,6 +32,6 @@ pnpm dev:front
 pnpm build
 
 # 仅构建后端二进制
-CGO_ENABLED=1 go build -o nb-panel ./cmd/server
+CGO_ENABLED=1 go build -o nodepassdash ./cmd/server
 ```
 

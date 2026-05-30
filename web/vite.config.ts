@@ -15,16 +15,13 @@ export default defineConfig(({ mode }) => ({
     __APP_VERSION__: JSON.stringify(packageJson.version),
     __DEV_MODE__: JSON.stringify(mode === "development"),
   },
-  esbuild: {
-    drop: mode === "production" ? ["console", "debugger"] : [],
-  },
   build: {
     outDir: "../cmd/server/dist",
   },
   server: {
     proxy: {
       "/api": {
-        target: process.env.VITE_API_BASE || "http://localhost:3000",
+        target: process.env.VITE_API_BASE || "http://localhost:4000",
         changeOrigin: true,
         secure: false,
         ws: true, // 启用 WebSocket 代理

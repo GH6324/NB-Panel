@@ -1,7 +1,7 @@
 package endpoint
 
 import (
-	"NB-Panel/internal/models"
+	"NodePassDash/internal/models"
 )
 
 // 使用统一模型定义

@@ -10,6 +10,7 @@ import TunnelCreatePage from "./pages/tunnels/create";
 import TunnelDetailsPage from "./pages/tunnels/details";
 import EndpointsPage from "./pages/endpoints";
 import SettingsPage from "./pages/settings";
+import VersionHistoryPage from "./pages/settings/version-history";
 import TemplatesPage from "./pages/templates";
 import SetupGuidePage from "./pages/setup-guide";
 import OAuthErrorPage from "./pages/oauth-error";
@@ -17,6 +18,7 @@ import OAuthSuccessPage from "./pages/oauth-success";
 import DebugPage from "./pages/debug";
 import EndpointDetailsPage from "./pages/endpoints/details";
 import EndpointSSEDebugPage from "./pages/endpoints/sse-debug";
+
 import IconComparisonPage from "./pages/icon-comparison";
 import ServicesPage from "./pages/services";
 import ServiceDetailsPage from "./pages/services/details";
@@ -46,6 +48,8 @@ function App() {
         <Route element={<EndpointDetailsPage />} path="/endpoints/details" />
         <Route element={<EndpointSSEDebugPage />} path="/endpoints/sse-debug" />
         <Route element={<SettingsPage />} path="/settings" />
+        <Route element={<VersionHistoryPage />} path="/settings/version-history"/>
+
         <Route element={<DebugPage />} path="/debug" />
         <Route element={<IconComparisonPage />} path="/icon-comparison" />
         <Route element={<DashboardPage />} path="/" />

@@ -136,7 +136,8 @@
     "tabs": {
       "ariaLabel": "设置选项",
       "security": "账户安全",
-      "logs": "日志管理"
+      "logs": "日志管理",
+      "version": "版本检查"
     },
     "toast": {
       "saveSuccess": "保存成功",
@@ -519,5 +520,53 @@
       "cleanupNetworkError": "启动清理任务失败，请检查网络连接"
     },
     "loading": "加载日志清理设置..."
+  },
+  "version": {
+    "title": "版本更新",
+    "description": "检查并管理系统版本",
+    "current": {
+      "title": "版本信息",
+      "current": "当前",
+      "stable": "稳定版",
+      "beta": "测试版",
+      "system": "系统",
+      "checkUpdate": "检查更新"
+    },
+    "deployment": {
+      "title": "部署环境",
+      "docker": "Docker 部署",
+      "binary": "二进制部署",
+      "autoUpdateStable": "自动更新稳定版",
+      "autoUpdateBeta": "自动更新测试版",
+      "manualUpdate": "手动更新",
+      "dockerDetails": "Docker 环境通过容器编排进行更新",
+      "dockerManualDetails": "Docker 环境推荐通过宿主机执行更新命令，以确保更新过程稳定可靠",
+      "binaryDetails": "将下载最新二进制文件并自动替换",
+      "unknownDetails": "建议查看更新说明进行手动更新"
+    },
+    "updateInstructions": {
+      "title": "更新说明：",
+      "docker": {
+        "desc": "在 Docker 宿主机上执行以下命令：",
+        "pull": "# 拉取最新镜像",
+        "restart": "# 重启容器"
+      },
+      "binary": {
+        "auto": "点击上方按钮即可自动更新",
+        "autoDesc": "程序会自动下载、停止、替换和重启",
+        "manual": "或手动更新：从 GitHub 下载→停止程序→替换文件→重启"
+      }
+    },
+    "modal": {
+      "title": "版本更新详情",
+      "prerelease": "(测试版)",
+      "publishedAt": "发布于",
+      "close": "关闭",
+      "viewDetails": "查看详情"
+    },
+    "alert": {
+      "updateStarted": "更新已开始: {{message}}\n\n程序将在几秒钟后自动重启，请稍等...",
+      "updateFailed": "更新失败: {{error}}"
+    }
   }
 }

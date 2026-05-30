@@ -1,7 +1,7 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "NodePassDash",
+  name: "NB面板",
   description: "A modern and secure tunnel dashboard.",
   navItems: [
     {

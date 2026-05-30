@@ -1,43 +1,71 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/lima-droid/NB-Panel/main/web/public/nodepass-logo-2.svg" alt="NB面板" height="80">
+  <img src="../nb-panel-logo.svg" alt="NB面板" height="80">
 </div>
 
 **语言：** 简体中文 | [English](../../README.md)
 
 ![Version](https://img.shields.io/badge/version-3.4.2-blue.svg)
+![GitHub license](https://img.shields.io/github/license/lima-droid/NB-Panel)
 
-NB面板 是一个现代化的隧道管理面板，用于集中管理端点、隧道与服务。项目采用 Go 后端并内置 React 前端，通过 SSE/WebSocket 提供实时监控。
+NB面板 是一个现代化的 **NodePass** 管理面板，用于集中管理端点（Endpoints）、隧道（Tunnels）与服务（Services）。项目采用 **Go（Gin + GORM + SQLite）** 后端并内置 **React（Vite + TypeScript + HeroUI）** 前端，通过 **SSE / WebSocket** 提供实时监控与交互。
+
+## Demo 演示
+
+- 在线演示：https://nb-panel.example.com/
+- 演示账号：`nodepass` / `Np123456`
+
+> ⚠️ 重要提醒：演示环境，请勿更改密码，请勿填写任何敏感信息。
 
 ## 功能亮点
 
-- **隧道管理**：端点、隧道、服务一站式管理
-- **实时监控**：SSE 实时流量数据和状态
-- **单文件部署**：Go 后端内置 React 前端（Vite + TypeScript + HeroUI）
-- **SQLite**：零外部依赖
-- **Docker 支持**：一键部署
+- **好看且现代的面板**：React + Vite + TypeScript + HeroUI，适配桌面与移动端。
+- **实时监控**：通过 SSE/WebSocket 推送隧道状态、流量与日志。
+- **多维度图表**：小时/日/周等趋势统计，并支持更细粒度的详情查看。
+- **强大的 NodePass 管理能力**：端点、隧道、服务一站式管理（批量操作、排序等）。
+- **场景化创建/模板向导**：用向导化流程快速生成与创建常见配置，降低出错率。
+- **支持 OAuth2 登录**：可配置（如 GitHub / Cloudflare），并可选择禁用密码登录。
+- **i18n 国际化**：内置多语言支持。
+- **个性化设置**：隐私模式、主题/语言新手引导等体验配置。
+- **运维工具集**：文件日志查看、网络调试能力、端点系统状态图表等，便于定位问题。
+- **移动端协同**：支持生成二维码，便于移动端 App 导入使用。
+- **规模化管理更省心**：搜索/筛选/排序、分组/标签、批量操作，覆盖高频日常维护。
+- **版本更新可感知**：内置版本信息与更新提醒，帮助你及时跟进发布。
+- **轻量易集成**：内嵌前端 + 单服务运行形态，可用容器部署，也可直接挂 systemd。
 
-## 快速开始
+## 文档
+
+- 迁移指南：[MIGRATION.md](MIGRATION.md)
+- Docker 部署：[DOCKER.md](DOCKER.md)
+- 二进制部署：[BINARY.md](BINARY.md)
+- 开发环境：[DEVELOPMENT.md](DEVELOPMENT.md)
+
+## 命令行参数
 
 ```bash
-# 下载二进制
-wget https://github.com/lima-droid/NB-Panel/releases/download/v3.4.2/nb-panel-linux-amd64
-chmod +x nb-panel-linux-amd64
-./nb-panel-linux-amd64 --port 4000
+./nb-panel --help
+./nb-panel --version
+./nb-panel --port 8080
+./nb-panel --log-level INFO
+./nb-panel --cert /path/to/cert.pem --key /path/to/key.pem
+./nb-panel --disable-login
+./nb-panel --sse-debug-log
+./nb-panel --resetpwd
 ```
 
-或使用一键安装脚本：
-```bash
-bash <(wget -qO- https://raw.githubusercontent.com/lima-droid/NP-Master/main/scripts/np.sh) -i
-```
+## 许可证
 
-## Docker
+BSD-3-Clause，见 `LICENSE`。
 
-```bash
-docker run -d --name nbpanel -p 4000:4000 ghcr.io/lima-droid/nb-panel:v3.4.2
-```
+## ⚖️ 免责声明
 
-## 链接
+本项目以“现状”提供，开发者不提供任何明示或暗示的保证。用户使用风险自担，需遵守当地法律法规，仅限合法用途。开发者对任何直接、间接、偶然或后果性损害概不负责。进行二次开发须承诺合法使用并自负法律责任。开发者保留随时修改软件功能及本声明的权利。最终解释权归开发者所有。
 
-- Telegram: https://t.me/NBPanel
-- Issues: https://github.com/lima-droid/NB-Panel/issues
+## 📞 支持
 
+- 🐛 问题报告: https://github.com/lima-droid/NB-Panel/issues
+- 💬 社区讨论: https://t.me/CubeMihomo
+- 📢 频道: https://t.me/CubeMihomo
+
+## ⭐ Stargazers
+
+[![Star History Chart](https://api.star-history.com/svg?repos=lima-droid/NB-Panel&type=Date)](https://star-history.com/#lima-droid/NB-Panel&Date)

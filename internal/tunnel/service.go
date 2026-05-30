@@ -199,7 +199,7 @@ func (s *Service) CreateTunnel(req CreateTunnelRequest) (*Tunnel, error) {
 	// 4. 使用 NodePass 客户端创建实例
 	response, err := nodepass.CreateInstance(endpoint.ID, commandLine)
 	if err != nil {
-		log.Errorf("[NodePass] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
+		log.Errorf("[NB] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
 		return nil, err
 	}
 
@@ -380,10 +380,10 @@ func (s *Service) DeleteTunnel(instanceID string) error {
 	if err := nodepass.DeleteInstance(tunnelWithEndpoint.Endpoint.ID, instanceID); err != nil {
 		// 如果收到401或404错误，说明NodePass核心已经没有这个实例了
 		if strings.Contains(err.Error(), "NodePass API 返回错误: 401") || strings.Contains(err.Error(), "NodePass API 返回错误: 404") {
-			log.Warnf("[API] NodePass API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", instanceID)
+			log.Warnf("[API] NB API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", instanceID)
 		} else {
-			log.Errorf("[API] NodePass API 删除失败: %v", err)
-			return fmt.Errorf("NodePass API 删除失败: %v", err)
+			log.Errorf("[API] NB API 删除失败: %v", err)
+			return fmt.Errorf("NB API 删除失败: %v", err)
 		}
 	}
 
@@ -838,7 +838,7 @@ func (s *Service) DeleteTunnelAndWait(instanceID string, timeout time.Duration, 
 		if err := nodepass.DeleteInstance(tunnelWithEndpoint.Endpoint.ID, instanceID); err != nil {
 			// 如果收到401或404错误，说明NodePass核心已经没有这个实例了，按删除成功处理
 			if strings.Contains(err.Error(), "NodePass API 返回错误: 401") || strings.Contains(err.Error(), "NodePass API 返回错误: 404") {
-				log.Warnf("[API] NodePass API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", instanceID)
+				log.Warnf("[API] NB API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", instanceID)
 			} else {
 				return err
 			}
@@ -927,7 +927,7 @@ func (s *Service) DeleteTunnelIdAndWait(timeout time.Duration, id *int64) error 
 		if err := nodepass.DeleteInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID); err != nil {
 			// 如果收到401或404错误，说明NodePass核心已经没有这个实例了，按删除成功处理
 			if strings.Contains(err.Error(), "NodePass API 返回错误: 401") || strings.Contains(err.Error(), "NodePass API 返回错误: 404") {
-				log.Warnf("[API] NodePass API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", *tunnelWithEndpoint.InstanceID)
+				log.Warnf("[API] NB API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", *tunnelWithEndpoint.InstanceID)
 			} else {
 				return err
 			}
@@ -1083,11 +1083,11 @@ func (s *Service) CreateTunnelAndWait(req CreateTunnelRequest, timeout time.Dura
 	// 1. 使用 NodePass 客户端创建实例
 	resp, err := nodepass.CreateInstance(endpoint.ID, commandLine)
 	if err != nil {
-		log.Errorf("[NodePass] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
+		log.Errorf("[NB] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
 		return nil, err
 	}
 
-	log.Infof("[API] NodePass API 创建成功，instanceID=%s，开始等待SSE通知", resp.ID)
+	log.Infof("[API] NB API 创建成功，instanceID=%s，开始等待SSE通知", resp.ID)
 
 	// 2. 轮询等待数据库中存在该 endpointId+instanceId 记录（通过 SSE 通知）
 	deadline := time.Now().Add(timeout)
@@ -1376,11 +1376,11 @@ func (s *Service) NewCreateTunnelAndWait(req Tunnel, timeout time.Duration) (*Tu
 	// 1. 使用 NodePass 客户端创建实例
 	resp, err := nodepass.CreateInstance(endpoint.ID, commandLine)
 	if err != nil {
-		log.Errorf("[NodePass] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
+		log.Errorf("[NB] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
 		return nil, err
 	}
 
-	log.Infof("[API] NodePass API 创建成功，instanceID=%s，开始等待SSE通知", resp.ID)
+	log.Infof("[API] NB API 创建成功，instanceID=%s，开始等待SSE通知", resp.ID)
 
 	// 2. 轮询等待数据库中存在该 endpointId+instanceId 记录（通过 SSE 通知）
 	deadline := time.Now().Add(timeout)
@@ -1567,11 +1567,11 @@ func (s *Service) PatchTunnel(id int64, updates map[string]interface{}) error {
 		if _, err := nodepass.RenameInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, aliasStr); err != nil {
 			// 检查是否为 404 错误（旧版本 NodePass 不支持）
 			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
-				log.Warnf("[API] NodePass API 不支持重命名功能（可能是旧版本）: %v", err)
+				log.Warnf("[API] NB API 不支持重命名功能（可能是旧版本）: %v", err)
 				// 不返回错误，继续执行
 			} else {
-				log.Errorf("[API] NodePass API 重命名失败: %v", err)
-				return fmt.Errorf("NodePass API 重命名失败: %v", err)
+				log.Errorf("[API] NB API 重命名失败: %v", err)
+				return fmt.Errorf("NB API 重命名失败: %v", err)
 			}
 		}
 	}
@@ -1602,11 +1602,11 @@ func (s *Service) SetTunnelAlias(tunnelID int64, alias string) error {
 	if _, err := nodepass.RenameInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, alias); err != nil {
 		// 检查是否为 404 错误（旧版本 NodePass 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
-			log.Warnf("[API] NodePass API 不支持别名功能（可能是旧版本），跳过设置: %v", err)
+			log.Warnf("[API] NB API 不支持别名功能（可能是旧版本），跳过设置: %v", err)
 			return nil // 不返回错误，继续执行
 		} else {
-			log.Errorf("[API] NodePass API 设置别名失败: %v", err)
-			return fmt.Errorf("NodePass API 设置别名失败: %v", err)
+			log.Errorf("[API] NB API 设置别名失败: %v", err)
+			return fmt.Errorf("NB API 设置别名失败: %v", err)
 		}
 	}
 
@@ -1639,11 +1639,11 @@ func (s *Service) RenameTunnel(id int64, newName string) error {
 	if _, err := nodepass.RenameInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, newName); err != nil {
 		// 检查是否为 404 错误（旧版本 NodePass 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
-			log.Warnf("[API] NodePass API 不支持重命名功能（可能是旧版本），仅更新本地记录: %v", err)
+			log.Warnf("[API] NB API 不支持重命名功能（可能是旧版本），仅更新本地记录: %v", err)
 			// 继续执行本地更新
 		} else {
-			log.Errorf("[API] NodePass API 重命名失败: %v", err)
-			return fmt.Errorf("NodePass API 重命名失败: %v", err)
+			log.Errorf("[API] NB API 重命名失败: %v", err)
+			return fmt.Errorf("NB API 重命名失败: %v", err)
 		}
 	}
 
@@ -2320,11 +2320,11 @@ func (s *Service) SetTunnelRestart(tunnelID int64, restart bool) error {
 	if _, err := nodepass.SetRestartInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, restart); err != nil {
 		// 检查是否为 404 错误（旧版本 NodePass 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
-			log.Warnf("[API] NodePass API 不支持重启策略功能（可能是旧版本）: %v", err)
+			log.Warnf("[API] NB API 不支持重启策略功能（可能是旧版本）: %v", err)
 			return errors.New("当前实例不支持自动重启功能")
 		} else {
-			log.Errorf("[API] NodePass API 设置重启策略失败: %v", err)
-			return fmt.Errorf("NodePass API 设置重启策略失败: %v", err)
+			log.Errorf("[API] NB API 设置重启策略失败: %v", err)
+			return fmt.Errorf("NB API 设置重启策略失败: %v", err)
 		}
 	}
 
@@ -2374,11 +2374,11 @@ func (s *Service) ResetTunnelTraffic(tunnelID int64) error {
 		if _, err := nodepass.ControlInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, "reset"); err != nil {
 			// 检查是否为 404 错误（旧版本 NodePass 不支持）
 			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
-				log.Warnf("[API] NodePass API 不支持重置流量功能（可能是旧版本）: %v", err)
+				log.Warnf("[API] NB API 不支持重置流量功能（可能是旧版本）: %v", err)
 				return errors.New("当前实例不支持重置流量功能")
 			} else {
-				log.Errorf("[API] NodePass API 重置流量失败: %v", err)
-				return fmt.Errorf("NodePass API 重置流量失败: %v", err)
+				log.Errorf("[API] NB API 重置流量失败: %v", err)
+				return fmt.Errorf("NB API 重置流量失败: %v", err)
 			}
 		}
 	}
@@ -2435,11 +2435,11 @@ func (s *Service) ResetTunnelTrafficByInstanceID(instanceID string) error {
 	if _, err := nodepass.ControlInstance(tunnelWithEndpoint.Endpoint.ID, instanceID, "reset"); err != nil {
 		// 检查是否为 404 错误（旧版本 NodePass 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
-			log.Warnf("[API] NodePass API 不支持重置流量功能（可能是旧版本）: %v", err)
+			log.Warnf("[API] NB API 不支持重置流量功能（可能是旧版本）: %v", err)
 			return errors.New("当前实例不支持重置流量功能")
 		} else {
-			log.Errorf("[API] NodePass API 重置流量失败: %v", err)
-			return fmt.Errorf("NodePass API 重置流量失败: %v", err)
+			log.Errorf("[API] NB API 重置流量失败: %v", err)
+			return fmt.Errorf("NB API 重置流量失败: %v", err)
 		}
 	}
 
@@ -3040,15 +3040,15 @@ func (s *Service) QuickCreateTunnelDirectURL(endpointID int64, rawURL string, na
 	}
 
 	// 4. 直接使用原始URL调用NodePass API创建实例
-	log.Infof("[NodePass] 直接URL创建实例 endpoint=%d url=%s", endpointID, rawURL)
+	log.Infof("[NB] 直接URL创建实例 endpoint=%d url=%s", endpointID, rawURL)
 
 	resp, err := nodepass.CreateInstance(endpointID, rawURL)
 	if err != nil {
-		log.Errorf("[NodePass] 直接URL创建实例失败 endpoint=%d url=%s err=%v", endpointID, rawURL, err)
+		log.Errorf("[NB] 直接URL创建实例失败 endpoint=%d url=%s err=%v", endpointID, rawURL, err)
 		return err
 	}
 
-	log.Infof("[API] NodePass API 创建成功，instanceID=%s，开始等待SSE通知", resp.ID)
+	log.Infof("[API] NB API 创建成功，instanceID=%s，开始等待SSE通知", resp.ID)
 
 	// 5. 轮询等待数据库中存在该 endpointId+instanceId 记录（通过 SSE 通知）
 	deadline := time.Now().Add(timeout)
@@ -3108,10 +3108,10 @@ func (s *Service) QuickCreateTunnelDirectURL(endpointID int64, rawURL string, na
 	}
 
 	// 10. 等待超时，记录警告但不执行手动创建（因为实例已经在NodePass中创建）
-	log.Warnf("[API] 直接URL等待SSE超时，但NodePass实例已创建: instanceID=%s", resp.ID)
+	log.Warnf("[API] 直接URL等待SSE超时，但NB实例已创建: instanceID=%s", resp.ID)
 
 	// 记录失败的操作日志
-	failMessage := "隧道创建超时（直接URL模式），NodePass实例已创建但数据库未同步"
+	failMessage := "隧道创建超时（直接URL模式），NB实例已创建但数据库未同步"
 	operationLog := models.TunnelOperationLog{
 		TunnelName: finalName,
 		Action:     models.OperationActionCreate,
@@ -3121,5 +3121,5 @@ func (s *Service) QuickCreateTunnelDirectURL(endpointID int64, rawURL string, na
 	}
 	s.db.Create(&operationLog)
 
-	return fmt.Errorf("等待数据库同步超时，但NodePass实例已创建(instanceID: %s)", resp.ID)
+	return fmt.Errorf("等待数据库同步超时，但NB实例已创建(instanceID: %s)", resp.ID)
 }

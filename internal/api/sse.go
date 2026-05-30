@@ -141,7 +141,7 @@ func (h *SSEHandler) HandleTestSSEEndpoint(c *gin.Context) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("NodePass SSE returned status code: %d", resp.StatusCode)
+		msg := fmt.Sprintf("NB SSE returned status code: %d", resp.StatusCode)
 		h.writeErrorGin(c, msg)
 		return
 	}
@@ -389,7 +389,7 @@ func (h *SSEHandler) HandleTestSSEEndpointWithVersion(c *gin.Context) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("NodePass SSE returned status code: %d", resp.StatusCode)
+		msg := fmt.Sprintf("NB SSE returned status code: %d", resp.StatusCode)
 		h.writeErrorGin(c, msg)
 		return
 	}
@@ -519,13 +519,13 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	// 发送连接成功消息
-	fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"connected","message":"NodePass SSE proxy connected successfully"}`)
+	fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"connected","message":"NB面板 SSE proxy connected successfully"}`)
 	c.Writer.Flush()
 
 	// 构造NodePass SSE URL
 	sseURL := fmt.Sprintf("%s%s/events", config.URL, config.APIPath)
-	log.Infof("[NodePass SSE Proxy] 连接到: %s", sseURL)
-	log.Infof("[NodePass SSE Proxy] 配置信息: URL=%s, APIPath=%s, APIKey=%s", config.URL, config.APIPath, config.APIKey)
+	log.Infof("[NB SSE Proxy] 连接到: %s", sseURL)
+	log.Infof("[NB SSE Proxy] 配置信息: URL=%s, APIPath=%s, APIKey=%s", config.URL, config.APIPath, config.APIKey)
 
 	// 创建连接上下文
 	ctx, cancel := context.WithCancel(c.Request.Context())
@@ -542,7 +542,7 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 	// 创建请求
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, sseURL, nil)
 	if err != nil {
-		log.Errorf("[NodePass SSE Proxy] 创建请求失败: %v", err)
+		log.Errorf("[NB SSE Proxy] 创建请求失败: %v", err)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"error","message":"Failed to create request"}`)
 		c.Writer.Flush()
 		return
@@ -556,16 +556,16 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 	// 发起请求
 	resp, err := client.Do(request)
 	if err != nil {
-		log.Errorf("[NodePass SSE Proxy] 连接失败: %v", err)
-		fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"error","message":"Failed to connect to NodePass"}`)
+		log.Errorf("[NB SSE Proxy] 连接失败: %v", err)
+		fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"error","message":"Failed to connect to NB"}`)
 		c.Writer.Flush()
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Errorf("[NodePass SSE Proxy] NodePass返回状态码: %d", resp.StatusCode)
-		fmt.Fprintf(c.Writer, "data: %s\n\n", fmt.Sprintf(`{"type":"error","message":"NodePass returned status code: %d"}`, resp.StatusCode))
+		log.Errorf("[NB SSE Proxy] NodePass返回状态码: %d", resp.StatusCode)
+		fmt.Fprintf(c.Writer, "data: %s\n\n", fmt.Sprintf(`{"type":"error","message":"NB returned status code: %d"}`, resp.StatusCode))
 		c.Writer.Flush()
 		return
 	}
@@ -573,13 +573,13 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 	// 验证Content-Type
 	contentType := resp.Header.Get("Content-Type")
 	if !strings.Contains(contentType, "text/event-stream") {
-		log.Errorf("[NodePass SSE Proxy] 无效的Content-Type: %s", contentType)
+		log.Errorf("[NB SSE Proxy] 无效的Content-Type: %s", contentType)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"error","message":"Invalid Content-Type"}`)
 		c.Writer.Flush()
 		return
 	}
 
-	log.Infof("[NodePass SSE Proxy] 连接成功，开始转发事件")
+	log.Infof("[NB SSE Proxy] 连接成功，开始转发事件")
 
 	// 读取并转发SSE事件
 	scanner := bufio.NewScanner(resp.Body)
@@ -589,14 +589,14 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 		// 检查上下文是否已取消
 		select {
 		case <-ctx.Done():
-			log.Infof("[NodePass SSE Proxy] 连接已关闭")
+			log.Infof("[NB SSE Proxy] 连接已关闭")
 			return
 		default:
 		}
 
 		// 转发SSE数据行
 		if _, err := fmt.Fprintf(c.Writer, "%s\n", line); err != nil {
-			log.Errorf("[NodePass SSE Proxy] 写入响应失败: %v", err)
+			log.Errorf("[NB SSE Proxy] 写入响应失败: %v", err)
 			return
 		}
 
@@ -605,19 +605,19 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 
 		// 记录所有接收到的行
 		if line == "" {
-			log.Debugf("[NodePass SSE Proxy] 收到空行（事件分隔符）")
+			log.Debugf("[NB SSE Proxy] 收到空行（事件分隔符）")
 		} else if strings.HasPrefix(line, "data: ") {
-			log.Infof("[NodePass SSE Proxy] 收到并转发数据: %s", line[6:]) // 去掉"data: "前缀显示
+			log.Infof("[NB SSE Proxy] 收到并转发数据: %s", line[6:]) // 去掉"data: "前缀显示
 		} else {
-			log.Debugf("[NodePass SSE Proxy] 收到其他行: %s", line)
+			log.Debugf("[NB SSE Proxy] 收到其他行: %s", line)
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Errorf("[NodePass SSE Proxy] 读取响应失败: %v", err)
+		log.Errorf("[NB SSE Proxy] 读取响应失败: %v", err)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"error","message":"Failed to read response"}`)
 		c.Writer.Flush()
 	}
 
-	log.Infof("[NodePass SSE Proxy] 连接结束")
+	log.Infof("[NB SSE Proxy] 连接结束")
 }

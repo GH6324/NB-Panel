@@ -329,9 +329,9 @@ func (s *Service) InitializeSystem() (string, string, error) {
 	// 重要: 输出初始密码
 	fmt.Println("================================")
 	if s.demoMode {
-		fmt.Println("🎭 NodePass 演示模式初始化完成！")
+		fmt.Println("🎭 NB面板 演示模式初始化完成！")
 	} else {
-		fmt.Println("🚀 NodePass 系统初始化完成！")
+		fmt.Println("🚀 NB面板 系统初始化完成！")
 	}
 	fmt.Println("================================")
 	fmt.Println("管理员账户信息：")
@@ -538,7 +538,7 @@ func (s *Service) ResetAdminPassword() (string, string, error) {
 
 	// 输出提示
 	fmt.Println("================================")
-	fmt.Println("🔐 NodePass 管理员密码已重置！")
+	fmt.Println("🔐 NB面板 管理员密码已重置！")
 	fmt.Println("================================")
 	fmt.Println("用户名:", username)
 	fmt.Println("新密码:", newPassword)

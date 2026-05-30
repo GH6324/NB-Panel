@@ -288,14 +288,14 @@ func startHTTPServer(ginRouter *gin.Engine, port, certFile, keyFile string) *htt
 	// 启动HTTP/HTTPS服务器
 	go func() {
 		if certFile != "" && keyFile != "" {
-			log.Infof("NodePassDash[%s] 启动在 https://localhost:%s (TLS)", Version, port)
+			log.Infof("NB面板[%s] 启动在 https://localhost:%s (TLS)", Version, port)
 			if err := server.ListenAndServeTLS(certFile, keyFile); err != http.ErrServerClosed {
 				log.Errorf("HTTPS 服务器错误: %v", err)
 			}
 			return
 		}
 
-		log.Infof("NodePassDash[%s] 启动在 http://localhost:%s", Version, port)
+		log.Infof("NB面板[%s] 启动在 http://localhost:%s", Version, port)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Errorf("HTTP 服务器错误: %v", err)
 		}
@@ -382,7 +382,7 @@ func main() {
 
 	// 如果指定了版本参数，显示版本信息后退出
 	if showVersion {
-		fmt.Printf("NodePassDash %s\n", Version)
+		fmt.Printf("NB面板 %s\n", Version)
 		fmt.Printf("Go version: %s\n", runtime.Version())
 		fmt.Printf("OS/Arch: %s/%s\n", runtime.GOOS, runtime.GOARCH)
 		return

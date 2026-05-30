@@ -63,7 +63,7 @@ func request(method, url, apiKey string, body interface{}, dest interface{}) err
 	}
 
 	if resp.StatusCode() < 200 || resp.StatusCode() >= 300 {
-		return fmt.Errorf("NodePass API 返回错误: %d", resp.StatusCode())
+		return fmt.Errorf("NB API 返回错误: %d", resp.StatusCode())
 	}
 
 	return nil
@@ -199,7 +199,7 @@ func UpdateInstancePeers(endpointID int64, instanceID string, peer *models.Peer)
 	return PatchInstance(endpointID, instanceID, body)
 }
 
-// GetInfo 获取NodePass实例的系统信息
+// GetInfo 获取NB实例的系统信息
 func GetInfo(endpointID int64) (*EndpointInfoResult, error) {
 	var resp EndpointInfoResult
 	baseURL, apiKey, _ := GetCache().Get(fmt.Sprintf("%d", endpointID))
@@ -390,7 +390,7 @@ type patchBody struct {
 	Meta    *Meta   `json:"meta,omitempty"` // 实例标签
 }
 
-// EndpointInfoResult NodePass实例的系统信息
+// EndpointInfoResult NB实例的系统信息
 type EndpointInfoResult struct {
 	OS        string `json:"os"`
 	Arch      string `json:"arch"`
@@ -410,7 +410,7 @@ type EndpointInfoResult struct {
 	NetRx     int64  `json:"netrx"`      // 网络接收字节数
 	NetTx     int64  `json:"nettx"`      // 网络发送字节数
 	SysUptime int64  `json:"sysup"`      // 系统运行时间(秒)
-	Uptime    int64  `json:"uptime"`     // NodePass运行时间(秒)
+	Uptime    int64  `json:"uptime"`     // NB运行时间(秒)
 	Alias     string `json:"alias"`      // 端点别名
 }
 
@@ -474,7 +474,7 @@ type NetworkDebugResult struct {
 // 	return result.url; // 新的API Key
 //   }
 
-// NodePass支持通过rate参数进行带宽速率限制，用于流量控制。此功能有助于防止网络拥塞，确保多个连接间的公平资源分配。
+// NB支持通过rate参数进行带宽速率限制，用于流量控制。此功能有助于防止网络拥塞，确保多个连接间的公平资源分配。
 
 // rate: 最大带宽限制，单位为Mbps（兆比特每秒）
 // 值为0或省略：无速率限制（无限带宽）
@@ -493,7 +493,7 @@ type NetworkDebugResult struct {
 // nodepass "server://0.0.0.0:10101/0.0.0.0:8080?log=error&tls=1&rate=50"
 // 速率限制使用场景：
 
-// 带宽控制：防止NodePass消耗所有可用带宽
+// 带宽控制：防止NB消耗所有可用带宽
 // 公平共享：确保多个应用程序可以共享网络资源
 // 成本管理：在按流量计费的网络环境中控制数据使用
 // QoS合规：满足带宽使用的服务级别协议

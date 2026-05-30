@@ -29,7 +29,7 @@ detect_arch() {
   esac
 }
 NPD_ARCH=$(detect_arch)
-NPD_DOWNLOAD_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/releases/NB-Panel_${NPD_ARCH}.tar.gz"
+NPD_DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/latest/download/NB-Panel_${NPD_ARCH}.tar.gz"
 NPD_LOCAL_TARGZ="${NPD_LOCAL_DIR}/NB-Panel_${NPD_ARCH}.tar.gz"
 
 # 通用函数

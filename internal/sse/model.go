@@ -238,6 +238,9 @@ func isConnectionError(err error) bool {
 
 // contains 检查字符串是否包含子字符串（简单实现）
 func contains(s, substr string) bool {
+	if len(s) < len(substr) {
+		return false
+	}
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
 			return true

@@ -21,8 +21,9 @@ import (
 )
 
 var (
-	gormDB *gorm.DB
-	once   sync.Once
+	gormDB   *gorm.DB
+	once     sync.Once
+	initMu   sync.Mutex
 	// 用于控制数据库健康检查协程的关闭
 	dbHealthCtx    context.Context
 	dbHealthCancel context.CancelFunc
@@ -156,7 +157,7 @@ func ensureOptimizedIndexes(db *gorm.DB, config DBConfig) {
 	uniqueSQL := "CREATE UNIQUE INDEX IF NOT EXISTS uniq_traffic_hourly_summary_hour_endpoint_instance ON traffic_hourly_summary(hour_time, endpoint_id, instance_id)"
 	if err := db.Exec(uniqueSQL).Error; err != nil {
 		applog.Warnf("[DB]创建索引 %s 失败（可能存在重复数据或锁冲突）: %v", uniqueName, err)
-		if config.AutoDedup && stringContains(err.Error(), "UNIQUE constraint failed") {
+		if config.AutoDedup && contains(err.Error(), "UNIQUE constraint failed") {
 			applog.Warnf("[DB]检测到 traffic_hourly_summary 存在重复 key，准备自动去重后重试创建唯一索引（可用 DB_AUTO_DEDUP=false 关闭）")
 			if dedupErr := dedupTrafficHourlySummary(db); dedupErr != nil {
 				applog.Errorf("[DB]自动去重 traffic_hourly_summary 失败: %v", dedupErr)
@@ -407,14 +408,11 @@ func isRetryableError(err error) bool {
 		contains(errStr, "database or disk is full")
 }
 
-// contains 检查字符串是否包含子字符串
+// contains 检查字符串是否包含子字符串（替代 strings.Contains，避免额外 import）
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) &&
-		stringContains(s, substr)
-}
-
-// stringContains 辅助函数，用于字符串包含检查
-func stringContains(s, substr string) bool {
+	if len(s) < len(substr) {
+		return false
+	}
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
 			return true
@@ -441,13 +439,17 @@ func GetHealthyDB() *gorm.DB {
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Printf("获取sql.DB失败，重新初始化连接: %v", err)
-		once = sync.Once{} // 重置once，允许重新初始化
+		initMu.Lock()
+		once = sync.Once{}
+		initMu.Unlock()
 		return GetDB()
 	}
 
 	if err := sqlDB.Ping(); err != nil {
 		log.Printf("数据库连接异常，重新初始化连接: %v", err)
-		once = sync.Once{} // 重置once，允许重新初始化
+		initMu.Lock()
+		once = sync.Once{}
+		initMu.Unlock()
 		return GetDB()
 	}
 

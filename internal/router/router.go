@@ -23,7 +23,7 @@ import (
 )
 
 // SetupRouter 创建并配置主路由器
-func SetupRouter(db *gorm.DB, sseService *sse.Service, sseManager *sse.Manager, wsService *websocket.Service, version string) *gin.Engine {
+func SetupRouter(db *gorm.DB, authService *auth.Service, endpointService *endpoint.Service, tunnelService *tunnel.Service, sseService *sse.Service, sseManager *sse.Manager, wsService *websocket.Service, dashboardService *dashboard.Service, version string) *gin.Engine {
 	r := gin.Default()
 
 	// 全局中间件
@@ -38,50 +38,44 @@ func SetupRouter(db *gorm.DB, sseService *sse.Service, sseManager *sse.Manager, 
 	r.Any("/docs-proxy/*path", docsProxyHandler)
 
 	// API路由
-	setupAPIRoutes(r, db, sseService, sseManager, wsService, version)
+	setupAPIRoutes(r, db, authService, endpointService, tunnelService, sseService, sseManager, wsService, dashboardService, version)
 
 	return r
 }
 
 // setupAPIRoutes 设置API路由
-func setupAPIRoutes(r *gin.Engine, db *gorm.DB, sseService *sse.Service, sseManager *sse.Manager, wsService *websocket.Service, version string) {
+func setupAPIRoutes(r *gin.Engine, db *gorm.DB, authService *auth.Service, endpointService *endpoint.Service, tunnelService *tunnel.Service, sseService *sse.Service, sseManager *sse.Manager, wsService *websocket.Service, dashboardService *dashboard.Service, version string) {
 	apiGroup := r.Group("/api")
-	{
-		// 创建服务实例
-		authService := auth.NewService(db)
-		endpointService := endpoint.NewService(db)
-		tunnelService := tunnel.NewService(db)
-		groupService := group.NewService(db)
-		servicesService := services.NewService(db, tunnelService, sseManager)
-		dashboardService := dashboard.NewService(db)
 
-		// 创建 Metrics 系统相关的处理器
-		metricsAggregator := metrics.NewMetricsAggregator(db)
-		sseProcessor := metrics.NewSSEProcessor(metricsAggregator)
+	// 创建其余服务实例（仅在 router 层需要的轻量服务）
+	groupService := group.NewService(db)
+	servicesService := services.NewService(db, tunnelService, sseManager)
 
-		// 设置认证路由（包含公开和受保护的路由）
-		api.SetupAuthRoutes(apiGroup, authService)
+	// 创建 Metrics 系统相关的处理器
+	metricsAggregator := metrics.NewMetricsAggregator(db)
+	sseProcessor := metrics.NewSSEProcessor(metricsAggregator)
 
-		// 创建认证中间件
-		authMiddleware := middleware.AuthMiddleware(authService)
+	// 设置认证路由（包含公开和受保护的路由）
+	api.SetupAuthRoutes(apiGroup, authService)
 
-		// 创建受保护的路由组（所有业务 API 都需要认证）
-		protectedGroup := apiGroup.Group("")
-		protectedGroup.Use(authMiddleware)
-		{
-			// 设置各模块的受保护路由
-			api.SetupEndpointRoutes(protectedGroup, endpointService, sseManager)
-			api.SetupTunnelRoutes(protectedGroup, tunnelService, sseManager, sseProcessor)
-			api.SetupSSERoutes(protectedGroup, sseService, sseManager)
-			api.SetupWebSocketRoutes(protectedGroup, wsService)
-			api.SetupDashboardRoutes(protectedGroup, dashboardService)
-			api.SetupDataRoutes(protectedGroup, db, sseManager, endpointService, tunnelService)
-			api.SetupGroupRoutes(protectedGroup, groupService)
-			api.SetupServicesRoutes(protectedGroup, servicesService, tunnelService)
-			api.SetupVersionRoutes(protectedGroup, version)
-			api.SetupDebugRoutes(protectedGroup)
-		}
-	}
+	// 创建认证中间件
+	authMiddleware := middleware.AuthMiddleware(authService)
+
+	// 创建受保护的路由组（所有业务 API 都需要认证）
+	protectedGroup := apiGroup.Group("")
+	protectedGroup.Use(authMiddleware)
+
+	// 设置各模块的受保护路由
+	api.SetupEndpointRoutes(protectedGroup, endpointService, sseManager)
+	api.SetupTunnelRoutes(protectedGroup, tunnelService, sseManager, sseProcessor)
+	api.SetupSSERoutes(protectedGroup, sseService, sseManager)
+	api.SetupWebSocketRoutes(protectedGroup, wsService)
+	api.SetupDashboardRoutes(protectedGroup, dashboardService)
+	api.SetupDataRoutes(protectedGroup, db, sseManager, endpointService, tunnelService)
+	api.SetupGroupRoutes(protectedGroup, groupService)
+	api.SetupServicesRoutes(protectedGroup, servicesService, tunnelService)
+	api.SetupVersionRoutes(protectedGroup, version)
+	api.SetupDebugRoutes(protectedGroup)
 }
 
 // docsProxyHandler 文档代理处理器
@@ -137,7 +131,7 @@ func docsProxyHandler(c *gin.Context) {
 	_, err = io.Copy(c.Writer, resp.Body)
 	if err != nil {
 		// 日志记录错误，但不再发送响应（因为已经开始写入）
-		fmt.Printf("复制响应体失败: %v\n", err)
+		c.Writer.Write([]byte(fmt.Sprintf("[DocsProxy] Copy response body failed: %v\n", err)))
 	}
 }
 

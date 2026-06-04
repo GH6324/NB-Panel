@@ -4,7 +4,7 @@
 
 **Language:** English | [简体中文](docs/zh-CN/README.md)
 
-![Version](https://img.shields.io/badge/version-3.4.2-blue.svg)
+![Version](https://img.shields.io/badge/version-3.4.3-blue.svg)
 ![GitHub license](https://img.shields.io/github/license/lima-droid/NB-Panel)
 
 NB面板 是一个轻量级隧道管理面板，单二进制文件部署，Go 后端 + React 前端，SQLite 存储，开箱即用。

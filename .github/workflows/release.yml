@@ -36,8 +36,11 @@ jobs:
 
       - name: 🏗️ 构建前端并准备嵌入
         run: |
-          echo "📦 安装前端依赖..."
+          echo "📦 清理旧缓存..."
           cd web
+          rm -rf node_modules
+          
+          echo "📦 安装前端依赖..."
           pnpm install --frozen-lockfile
           
           echo "🏗️ 构建前端静态文件..."

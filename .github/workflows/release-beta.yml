@@ -33,6 +33,10 @@ jobs:
         run: |
           echo "📦 安装前端依赖..."
           cd web
+          echo "📦 清理旧缓存..."
+          rm -rf node_modules
+          
+          echo "📦 安装前端依赖..."
           pnpm install --frozen-lockfile
           
           echo "🏗️ 构建前端静态文件..."

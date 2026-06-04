@@ -237,6 +237,58 @@ show_npd_info() {
   echo
 }
 
+# ========== 升级 ==========
+upgrade_nodepassdash() {
+  check_npd_install
+  [[ $? -eq 2 ]] && { warn "未检测到安装"; return; }
+
+  download_nodepassdash
+  [[ ! -f "$NPD_LOCAL_TARGZ" ]] && error "未找到安装包"
+
+  title "正在升级"
+
+  local tmp="/tmp/npdash_upgrade"
+  rm -rf "$tmp" && mkdir "$tmp"
+  step "解压安装包..."
+  tar -xzf "$NPD_LOCAL_TARGZ" -C "$tmp" >/dev/null 2>&1 || error "解压失败"
+
+  local binary=$(find "$tmp" -name "$NPD_BINARY_NAME" -type f | head -1)
+  [[ -z "$binary" ]] && error "未找到二进制文件"
+
+  local old_ver=""
+  [[ -f "$NPD_INSTALL_DIR/bin/$NPD_BINARY_NAME" ]] && old_ver=$("$NPD_INSTALL_DIR/bin/$NPD_BINARY_NAME" --version 2>&1 | grep "NB面板" | head -1)
+
+  step "停止服务..."
+  systemctl stop $NPD_SERVICE_NAME 2>/dev/null || true
+
+  step "替换二进制文件..."
+  cp "$binary" "$NPD_INSTALL_DIR/bin/$NPD_BINARY_NAME"
+  chmod 755 "$NPD_INSTALL_DIR/bin/$NPD_BINARY_NAME"
+  chown root:root "$NPD_INSTALL_DIR/bin/$NPD_BINARY_NAME"
+
+  step "启动服务..."
+  systemctl start $NPD_SERVICE_NAME 2>/dev/null || true
+
+  local new_ver=$("$NPD_INSTALL_DIR/bin/$NPD_BINARY_NAME" --version 2>&1 | grep "NB面板" | head -1)
+
+  rm -rf "$tmp" "$NPD_LOCAL_DIR"
+
+  echo
+  echo -e "${BOLD}${GREEN}+────────────────────+${NC}"
+  echo -e "${BOLD}${GREEN}|   NB面板 升级完成！|${NC}"
+  echo -e "${BOLD}${GREEN}+────────────────────+${NC}"
+  echo
+  [[ -n "$old_ver" ]] && echo -e " 旧版本: ${YELLOW}$old_ver${NC}"
+  echo -e " 新版本: ${GREEN}$new_ver${NC}"
+  echo
+
+  if systemctl is-active --quiet $NPD_SERVICE_NAME; then
+    info "服务已启动"
+  else
+    warn "服务可能未启动: journalctl -u $NPD_SERVICE_NAME -n 20"
+  fi
+}
+
 # ========== 卸载 ==========
 uninstall_nodepassdash() {
   check_npd_install
@@ -284,9 +336,10 @@ main_menu() {
     echo -e " ${GREEN}1${NC}. 安装 "
   else
     echo -e " ${GREEN}1${NC}. 查看状态"
-    echo -e " ${GREEN}2${NC}. 重启服务"
-    echo -e " ${GREEN}3${NC}. 停止服务"
-    echo -e " ${RED}4${NC}. 卸载"
+    echo -e " ${GREEN}2${NC}. 升级"
+    echo -e " ${GREEN}3${NC}. 重启服务"
+    echo -e " ${GREEN}4${NC}. 停止服务"
+    echo -e " ${RED}5${NC}. 卸载"
   fi
   echo -e " ${CYAN}0${NC}. 退出"
   echo
@@ -294,9 +347,10 @@ main_menu() {
   reading "请选择: " ch
   case "$ch" in
     1) [[ $s -eq 2 ]] && install_nodepassdash || show_npd_info ;;
-    2) [[ $s -ne 2 ]] && { systemctl restart $NPD_SERVICE_NAME && info "已重启"; } ;;
-    3) [[ $s -ne 2 ]] && { systemctl stop $NPD_SERVICE_NAME && info "已停止"; } ;;
-    4) [[ $s -ne 2 ]] && uninstall_nodepassdash ;;
+    2) [[ $s -ne 2 ]] && upgrade_nodepassdash ;;
+    3) [[ $s -ne 2 ]] && { systemctl restart $NPD_SERVICE_NAME && info "已重启"; } ;;
+    4) [[ $s -ne 2 ]] && { systemctl stop $NPD_SERVICE_NAME && info "已停止"; } ;;
+    5) [[ $s -ne 2 ]] && uninstall_nodepassdash ;;
     0) echo; exit 0 ;;
     *) main_menu ;;
   esac
@@ -312,6 +366,7 @@ main() {
 
   case "$1" in
     -i|--install) install_nodepassdash ;;
+    -U|--upgrade) upgrade_nodepassdash ;;
     -u|--uninstall) uninstall_nodepassdash ;;
     -s|--status) show_npd_info ;;
     -d|--download) download_nodepassdash ;;
@@ -322,6 +377,7 @@ main() {
       echo
       echo " bash $0       交互式菜单"
       echo " bash $0 -i    直接安装"
+      echo " bash $0 -U    升级"
       echo " bash $0 -u    卸载"
       echo " bash $0 -s    查看状态"
       echo " bash $0 -d    仅下载安装包"

@@ -149,9 +149,9 @@ SVC
   echo -e " ${G}${B}安装完成${N}"
   sep
   echo -e "   ${B}URL:${N}     ${C}${proto}://${ip_addr}:${dest_port}${N}"
-  echo -e "   ${B}Account:${N} nbpanel / Np123456"
-  echo -e "   ${B}Binary:${N}  $INSTALL_DIR/bin/$BINARY_NAME"
-  echo -e "   ${B}Config:${N}  $INSTALL_DIR/config.env"
+  echo -e "   ${B}账号:${N} nbpanel / Np123456"
+  echo -e "   ${B}路径:${N}    $INSTALL_DIR/bin/$BINARY_NAME"
+  echo -e "   ${B}配置:${N}    $INSTALL_DIR/config.env"
   sep
   echo
 }
@@ -208,8 +208,8 @@ install_docker() {
   echo -e " ${G}${B}安装完成${N}"
   sep
   echo -e "   ${B}URL:${N}     ${C}http://${ip_addr}:${port_host}${N}"
-  echo -e "   ${B}Account:${N} nbpanel / Np123456"
-  echo -e "   ${B}Data:${N}    ${data_dir}"
+  echo -e "   ${B}账号:${N} nbpanel / Np123456"
+  echo -e "   ${B}数据:${N}    ${data_dir}"
   sep
   echo
 }
@@ -333,7 +333,8 @@ main_menu() {
       echo "    2) Docker"
       readp "请选择 [1/2]: " up
       if [[ "$up" == "2" ]]; then
-        docker pull "$DOCKER_IMAGE" && docker stop "$SERVICE_NAME" 2>/dev/null; docker rm "$SERVICE_NAME" 2>/dev/null
+        docker stop "$SERVICE_NAME" 2>/dev/null; docker rm "$SERVICE_NAME" 2>/dev/null
+        docker pull "$DOCKER_IMAGE"
         local pd="${port_host:-4000}" dd="${data_dir:-$(pwd)/nbpanel-data}"
         mkdir -p "$dd"/{logs,public,db} && chmod 777 "$dd"/{logs,public,db}
         docker run -d --name "$SERVICE_NAME" --restart=always -p "${pd}:4000" -e PORT=4000 -v "$dd/logs:/app/logs" -v "$dd/db:/app/db" -v "$dd/public:/app/public" "$DOCKER_IMAGE" && ok "Docker 升级完成"

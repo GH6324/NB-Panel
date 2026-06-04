@@ -335,9 +335,12 @@ main_menu() {
       echo "    2) Docker"
       readp "请选择 [1/2]: " up
       if [[ "$up" == "2" ]]; then
+        local pd dd
+        pd=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | grep -oP '0.0.0.0:\K\d+')
+        dd=$(docker inspect "$SERVICE_NAME" 2>/dev/null | grep -oP '"Source": "\K[^"]+/nbpanel-data' | head -1)
+        pd="${pd:-4000}"; dd="${dd:-$(pwd)/nbpanel-data}"
         docker stop "$SERVICE_NAME" 2>/dev/null; docker rm "$SERVICE_NAME" 2>/dev/null
         docker pull "$DOCKER_IMAGE"
-        local pd="${port_host:-4000}" dd="${data_dir:-$(pwd)/nbpanel-data}"
         mkdir -p "$dd"/{logs,public,db} && chmod 777 "$dd"/{logs,public,db}
         docker run -d --name "$SERVICE_NAME" --restart=always -p "${pd}:4000" -e PORT=4000 -v "$dd/logs:/app/logs" -v "$dd/db:/app/db" -v "$dd/public:/app/public" "$DOCKER_IMAGE" && ok "Docker 升级完成"
       else

@@ -90,7 +90,7 @@ install_binary() {
   id nodepass &>/dev/null || useradd --system --home "$INSTALL_DIR" --shell /bin/false nodepass
 
   msg "创建目录..."
-  mkdir -p "$INSTALL_DIR"/{bin,db,logs}
+  mkdir -p "$INSTALL_DIR"/{bin,db,logs,certs}
 
   msg "安装二进制文件..."
   cp "$binary" "$INSTALL_DIR/bin/$BINARY_NAME"
@@ -114,7 +114,7 @@ KEY_PATH=$INSTALL_DIR/certs/server.key
 ENV
   fi
 
-  chown -R nodepass:nodepass "$INSTALL_DIR"/{db,logs,certs} 2>/dev/null
+  chown -R nodepass:nodepass "$INSTALL_DIR/db" "$INSTALL_DIR/logs" "$INSTALL_DIR/certs" 2>/dev/null 
 
   msg "注册 systemd 服务..."
   cat > /etc/systemd/system/$SERVICE_NAME.service <<-SVC

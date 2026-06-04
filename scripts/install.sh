@@ -4,7 +4,7 @@
 # https://github.com/lima-droid/NB-Panel
 #
 set -eE
-trap 'echo "Installation aborted. See: script/line $LINENO"; exit 1' ERR
+trap 'echo "安装中断，行号: $LINENO"; exit 1' ERR
 
 VERSION="3.4.4"
 INSTALL_DIR="/opt/nodepassdash"
@@ -75,8 +75,8 @@ install_binary() {
   if [[ "$https" =~ ^[Yy]$ ]]; then
     readp "TLS 证书路径: " cert_path
     readp "TLS 私钥路径: " key_path
-    [[ -f "$cert_path" ]] || err "Certificate not found: $cert_path"
-    [[ -f "$key_path" ]] || err "Private key not found: $key_path"
+    [[ -f "$cert_path" ]] || err "证书文件不存在: $cert_path"
+    [[ -f "$key_path" ]] || err "私钥文件不存在: $key_path"
     tls_args=" --cert $cert_path --key $key_path"
   fi
 
@@ -86,13 +86,13 @@ install_binary() {
 
   ip_addr=$(curl -s --max-time 5 https://ipv4.ip.sb 2>/dev/null || echo "localhost")
 
-  msg "Setting up system user..."
+  msg "创建系统用户..."
   id nodepass &>/dev/null || useradd --system --home "$INSTALL_DIR" --shell /bin/false nodepass
 
-  msg "Creating directories..."
+  msg "创建目录..."
   mkdir -p "$INSTALL_DIR"/{bin,db,logs}
 
-  msg "Installing binary..."
+  msg "安装二进制文件..."
   cp "$binary" "$INSTALL_DIR/bin/$BINARY_NAME"
   chmod 755 "$INSTALL_DIR/bin/$BINARY_NAME"
   chown root:root "$INSTALL_DIR/bin/$BINARY_NAME"
@@ -116,7 +116,7 @@ ENV
 
   chown -R nodepass:nodepass "$INSTALL_DIR"/{db,logs,certs} 2>/dev/null
 
-  msg "Registering systemd service..."
+  msg "注册 systemd 服务..."
   cat > /etc/systemd/system/$SERVICE_NAME.service <<-SVC
 [Unit]
 Description=NB-Panel
@@ -158,7 +158,7 @@ SVC
 
 # ---------- Docker Install ----------
 install_docker() {
-  command -v docker &>/dev/null || err "请先安装 Docker. Please install Docker first."
+  command -v docker &>/dev/null || err "请先安装 Docker"
 
   local port_host data_dir ip_addr
 
@@ -180,9 +180,9 @@ install_docker() {
   ip_addr=$(curl -s --max-time 5 https://ipv4.ip.sb 2>/dev/null || hostname -I | awk '{print $1}')
   ip_addr="${ip_addr:-localhost}"
 
-  # Remove existing container
+  # 删除旧容器
   docker inspect "$SERVICE_NAME" &>/dev/null && {
-    msg "Removing existing container..."
+    msg "删除旧容器..."
     docker rm -f "$SERVICE_NAME" &>/dev/null
   }
 
@@ -240,16 +240,16 @@ main() {
     -b|--binary) install_binary ;;
     -d|--docker) install_docker ;;
     -h|--help)
-      echo "Usage: bash install.sh [OPTION]"
-      echo "  -b, --binary    二进制安装 (systemd)"
-      echo "  -d, --docker    Docker installation"
-      echo "  (no option)     Interactive menu"
+      echo "用法: bash install.sh [选项]"
+      echo "    -b, --binary    二进制安装"
+      echo "    -d, --docker    Docker 安装"
+      echo "    (无参数)         交互式菜单"
       exit 0
       ;;
     *)
       echo
       echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-      echo -e " ${B}${C}  NB-Panel Installer v${VERSION}${N}"
+      echo -e " ${B}${C}  NB-Panel 安装脚本 v${VERSION}${N}"
       echo -e " ${B}${C}  github.com/lima-droid/NB-Panel${N}"
       echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
       install_menu

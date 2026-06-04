@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 
 SCRIPT_VERSION='3.0.0'
 RED='\033[0;31m'
@@ -339,9 +338,7 @@ main() {
     -u|--uninstall) uninstall_binary ;;
     -U|--uninstall-docker) uninstall_docker ;;
     -s|--status) show_status ;;
-    *)
-      main_menu
-      ;;
+    *) main_menu ;;
   esac
 }
 

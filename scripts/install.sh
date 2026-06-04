@@ -285,7 +285,7 @@ show_status() {
   if docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
     if docker ps --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
       echo "    状态: 运行中"
-      local port=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | grep -oP '0.0.0.0:\K\d+')
+      local port=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | sed 's/.*://')
       echo "    端口: ${port:-4000}"
     else
       echo "    状态: 已停止"
@@ -344,8 +344,8 @@ main_menu() {
       if docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
         msg "Docker 升级中..."
         local pd dd
-        pd=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | grep -oP '0.0.0.0:\K\d+')
-        dd=$(docker inspect "$SERVICE_NAME" 2>/dev/null | grep -oP '"Source": "\K[^"]+/nbpanel-data' | head -1)
+        pd=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | sed 's/.*://')
+        dd=$(docker inspect "$SERVICE_NAME" 2>/dev/null | grep '"Source"' | sed 's/.*"Source": "//;s/".*//' | grep nbpanel-data | head -1)
         pd="${pd:-4000}"; dd="${dd:-$(pwd)/nbpanel-data}"
         docker stop "$SERVICE_NAME" 2>/dev/null; docker rm "$SERVICE_NAME" 2>/dev/null
         docker pull "$DOCKER_IMAGE"

@@ -330,11 +330,8 @@ main_menu() {
       ;;
     3)
       echo
-      echo "  升级目标:"
-      echo "    1) 二进制"
-      echo "    2) Docker"
-      readp "请选择 [1/2]: " up
-      if [[ "$up" == "2" ]]; then
+      if docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
+        msg "Docker 升级中..."
         local pd dd
         pd=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | grep -oP '0.0.0.0:\K\d+')
         dd=$(docker inspect "$SERVICE_NAME" 2>/dev/null | grep -oP '"Source": "\K[^"]+/nbpanel-data' | head -1)
@@ -343,8 +340,8 @@ main_menu() {
         docker pull "$DOCKER_IMAGE"
         mkdir -p "$dd"/{logs,public,db} && chmod 777 "$dd"/{logs,public,db}
         docker run -d --name "$SERVICE_NAME" --restart=always -p "${pd}:4000" -e PORT=4000 -v "$dd/logs:/app/logs" -v "$dd/db:/app/db" -v "$dd/public:/app/public" "$DOCKER_IMAGE" && ok "Docker 升级完成"
-      else
-        [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]] || { warn "二进制版未安装"; return; }
+      elif [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]]; then
+        msg "二进制升级中..."
         systemctl stop $SERVICE_NAME 2>/dev/null
         download_binary
         rm -rf /tmp/nbpanel_install && mkdir /tmp/nbpanel_install
@@ -353,6 +350,8 @@ main_menu() {
         cp "$binary" "$INSTALL_DIR/bin/$BINARY_NAME" && chmod 755 "$INSTALL_DIR/bin/$BINARY_NAME"
         systemctl start $SERVICE_NAME && ok "二进制升级完成"
         rm -rf /tmp/nbpanel_install
+      else
+        warn "未检测到已安装的 NB-Panel"
       fi
       ;;
     4) show_status ;;

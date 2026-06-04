@@ -4,7 +4,7 @@
 
 **语言：** 简体中文 | [English](../../README.md)
 
-![Version](https://img.shields.io/badge/version-3.4.2-blue.svg)
+![Version](https://img.shields.io/badge/version-3.4.3-blue.svg)
 ![GitHub license](https://img.shields.io/github/license/lima-droid/NB-Panel)
 
 NB面板 是一个现代化的隧道管理面板，用于集中管理端点（Endpoints）、隧道（Tunnels）与服务（Services）。项目采用 **Go（Gin + GORM + SQLite）** 后端并内置 **React（Vite + TypeScript + HeroUI）** 前端，通过 **SSE / WebSocket** 提供实时监控与交互。

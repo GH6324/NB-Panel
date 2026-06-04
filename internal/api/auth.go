@@ -2,6 +2,7 @@ package api
 
 import (
 	"NodePassDash/internal/auth"
+	"NodePassDash/internal/log"
 	"NodePassDash/internal/middleware"
 	"encoding/base64"
 	"encoding/json"

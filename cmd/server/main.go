@@ -29,7 +29,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var Version = "3.4.3"
+var Version = "3.4.4"
 
 //go:embed dist
 var distFS embed.FS

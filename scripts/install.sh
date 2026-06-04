@@ -259,7 +259,6 @@ show_status() {
 
 # 主菜单
 main_menu() {
-  clear
   echo "===================================="
   echo "  NB-Panel 管理脚本 v${SCRIPT_VERSION}"
   echo "  https://github.com/${GITHUB_REPO}"

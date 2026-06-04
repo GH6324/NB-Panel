@@ -151,5 +151,32 @@ jobs:
           version: 'latest'
           args: release --clean --skip=validate
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📢 TG 发布通知
+        if: steps.get_version.outputs.is_tag_trigger == 'true'
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          [ -z "$TG_BOT_TOKEN" ] && echo "⚠️ TG_BOT_TOKEN 未设置，跳过通知" && exit 0
+          [ -z "$TG_CHAT_ID" ] && echo "⚠️ TG_CHAT_ID 未设置，跳过通知" && exit 0
+          RELEASE_URL="https://github.com/lima-droid/NB-Panel/releases/tag/v${VERSION}"
+          PREV_TAG=$(git tag -l --sort=-version:refname | head -2 | tail -1)
+          if [ -n "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --oneline --no-decorate ${PREV_TAG}...HEAD 2>/dev/null | head -10)
+          else
+            CHANGELOG="首次发布"
+          fi
+          MSG="<b>🚀 NB-Panel v${VERSION} 发布</b>
+        \n📦 <a href=\"${RELEASE_URL}\">下载 v${VERSION}</a>
+        \n🐳 docker pull ghcr.io/lima-droid/nb-panel:${VERSION}
+        \n\n📝 更新内容:
+        <code>${CHANGELOG}</code>"
+          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TG_CHAT_ID}" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" \
+            -d "text=${MSG}" | python3 -c "import json,sys;d=json.load(sys.stdin);print('✅ 已发送' if d.get('ok') else f'❌ {d}')"
 

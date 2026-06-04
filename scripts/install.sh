@@ -21,7 +21,7 @@ ok()    { echo -e " ${G}✓${N} $*"; }
 warn()  { echo -e " ${Y}⚠${N} $*"; }
 err()   { echo -e " ${R}✗${N} $*" >&2; exit 1; }
 sep()   { echo -e " ${C}────────────────────────────────────────────${N}"; }
-readp() { read -p "$(echo -e " ${G}?${N} $1")" "$2"; }
+readp() { read -p "$(echo -e " $1")" "$2"; }
 
 check_root() {
   [[ $EUID -eq 0 ]] || err "请使用 root 账户运行"
@@ -65,7 +65,7 @@ install_binary() {
 
   echo
   sep
-  echo -e " ${B}Binary Installation${N}"
+  echo -e " ${B}二进制安装${N}"
   sep
 
   readp "监听端口 [4000]: " dest_port

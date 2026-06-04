@@ -8,7 +8,7 @@ builds:
     env:
       - CGO_ENABLED=1
     main: ./cmd/server
-    binary: nb-panel
+    binary: nodepassdash
     goos:
       - linux
     goarch:
@@ -30,7 +30,7 @@ builds:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
     main: ./cmd/server
-    binary: nb-panel
+    binary: nodepassdash
     goos:
       - linux
     goarch:
@@ -52,7 +52,7 @@ builds:
       - CGO_ENABLED=1
       - CC=arm-linux-gnueabihf-gcc
     main: ./cmd/server
-    binary: nb-panel
+    binary: nodepassdash
     goos:
       - linux
     goarch:
@@ -76,7 +76,7 @@ builds:
       - CGO_ENABLED=1
       - CC=arm-linux-gnueabi-gcc
     main: ./cmd/server
-    binary: nb-panel
+    binary: nodepassdash
     goos:
       - linux
     goarch:
@@ -102,7 +102,7 @@ builds:
       - CGO_ENABLED=1
       - CC=x86_64-w64-mingw32-gcc
     main: ./cmd/server
-    binary: nb-panel
+    binary: nodepassdash
     goos:
       - windows
     goarch:
@@ -124,7 +124,7 @@ builds:
       - CGO_ENABLED=1
       - CC=i686-w64-mingw32-gcc
     main: ./cmd/server
-    binary: nb-panel
+    binary: nodepassdash
     goos:
       - windows
     goarch:
@@ -224,7 +224,7 @@ release:
     
     ### 🔧 使用说明
     1. 下载对应架构的二进制文件
-    2. 解压后直接运行 `./nb-panel`（无需外部依赖）
+    2. 解压后直接运行 `./nodepassdash`（无需外部依赖）
     3. 默认监听 `http://localhost:3000`
     
     ### 📝 部署说明

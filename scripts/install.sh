@@ -38,6 +38,7 @@ detect_arch() {
 }
 
 download_binary() {
+
   local url="https://github.com/lima-droid/NB-Panel/releases/latest/download/NB-Panel_$(detect_arch).tar.gz"
   dest="/tmp/nbpanel.tar.gz"
   msg "下载 NB-Panel..."
@@ -54,6 +55,7 @@ install_binary() {
   dest="/tmp/nbpanel.tar.gz"
 
   download_binary
+        rm -rf /tmp/nbpanel_install && mkdir /tmp/nbpanel_install
 
   msg "解压安装包..."
   rm -rf /tmp/nbpanel_install && mkdir /tmp/nbpanel_install
@@ -342,6 +344,7 @@ main_menu() {
         [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]] || { warn "二进制版未安装"; return; }
         systemctl stop $SERVICE_NAME 2>/dev/null
         download_binary
+        rm -rf /tmp/nbpanel_install && mkdir /tmp/nbpanel_install
         tar -xzf "$dest" -C /tmp/nbpanel_install || err "解压失败"
         local binary=$(find /tmp/nbpanel_install -name "$BINARY_NAME" -type f | head -1)
         cp "$binary" "$INSTALL_DIR/bin/$BINARY_NAME" && chmod 755 "$INSTALL_DIR/bin/$BINARY_NAME"

@@ -29,8 +29,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Version 会在构建时通过 -ldflags "-X main.Version=xxx" 注入
-var Version = "dev"
+var Version = "3.4.3"
 
 //go:embed dist
 var distFS embed.FS

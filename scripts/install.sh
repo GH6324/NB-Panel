@@ -214,22 +214,138 @@ install_docker() {
   echo
 }
 
-# ---------- Install Menu ----------
-install_menu() {
-  echo
-  sep
-  echo -e " ${B}选择安装方式${N}"
-  sep
-  echo -e "   ${B}1${N}. 二进制"
-  echo -e "   ${B}2${N}. Docker"
-  sep
-  readp "请选择 [1/2]: " method
-  echo
+# ---------- Uninstall ----------
+uninstall_binary() {
+  [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]] || { warn "二进制版未安装"; return; }
+  readp "确认卸载? [y/N]: " ok
+  [[ "$ok" =~ ^[Yy]$ ]] || return
+  systemctl stop $SERVICE_NAME 2>/dev/null
+  systemctl disable $SERVICE_NAME 2>/dev/null
+  rm -f /etc/systemd/system/$SERVICE_NAME.service
+  systemctl daemon-reload
+  rm -rf "$INSTALL_DIR"
+  rm -f /usr/local/bin/$BINARY_NAME
+  ok "二进制版已卸载"
+}
 
-  case "$method" in
-    2) install_docker ;;
-    *) install_binary ;;
+uninstall_docker() {
+  docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" || { warn "Docker 版未安装"; return; }
+  readp "确认卸载? [y/N]: " ok
+  [[ "$ok" =~ ^[Yy]$ ]] || return
+  docker stop "$SERVICE_NAME" 2>/dev/null || true
+  docker rm "$SERVICE_NAME" 2>/dev/null || true
+  docker rmi "$DOCKER_IMAGE" 2>/dev/null || true
+  readp "删除数据目录? [y/N]: " del
+  if [[ "$del" =~ ^[Yy]$ ]]; then
+    local data_dir="${DATA_DIR:-$(pwd)/nbpanel-data}"
+    rm -rf "$data_dir"
+  fi
+  ok "Docker 版已卸载"
+}
+
+# ---------- Status ----------
+show_status() {
+  echo
+  echo "  二进制:"
+  if [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]]; then
+    if systemctl is-active --quiet $SERVICE_NAME 2>/dev/null; then
+      echo "    状态: 运行中"
+      local port=$(grep ^PORT= "$INSTALL_DIR/config.env" 2>/dev/null | cut -d= -f2)
+      echo "    端口: ${port:-4000}"
+    else
+      echo "    状态: 已停止"
+    fi
+  else
+    echo "    未安装"
+  fi
+
+  echo
+  echo "  Docker:"
+  if docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
+    if docker ps --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
+      echo "    状态: 运行中"
+      local port=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | grep -oP '0.0.0.0:\K\d+')
+      echo "    端口: ${port:-4000}"
+    else
+      echo "    状态: 已停止"
+    fi
+  else
+    echo "    未安装"
+  fi
+  echo
+}
+
+# ---------- Main Menu ----------
+main_menu() {
+  echo
+  echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
+  echo -e " ${B}${C}  NB-Panel 管理脚本 v${VERSION}${N}"
+  echo -e " ${B}${C}  github.com/lima-droid/NB-Panel${N}"
+  echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
+  echo
+  echo "    1. 安装"
+  echo "    2. 卸载"
+  echo "    3. 升级"
+  echo "    4. 状态"
+  echo "    5. 日志"
+  echo "    0. 退出"
+  echo
+  readp "请选择 [0-5]: " choice
+
+  case "$choice" in
+    1) install_menu ;;
+    2)
+      echo
+      echo "  卸载目标:"
+      echo "    1) 二进制"
+      echo "    2) Docker"
+      echo "    3) 全部"
+      readp "请选择 [1/2/3]: " u
+      case "$u" in
+        2) uninstall_docker ;;
+        3) uninstall_binary; uninstall_docker ;;
+        *) uninstall_binary ;;
+      esac
+      ;;
+    3)
+      echo
+      echo "  升级目标:"
+      echo "    1) 二进制"
+      echo "    2) Docker"
+      readp "请选择 [1/2]: " up
+      if [[ "$up" == "2" ]]; then
+        docker pull "$DOCKER_IMAGE" && docker stop "$SERVICE_NAME" 2>/dev/null; docker rm "$SERVICE_NAME" 2>/dev/null
+        local pd="${port_host:-4000}" dd="${data_dir:-$(pwd)/nbpanel-data}"
+        mkdir -p "$dd"/{logs,public,db} && chmod 777 "$dd"/{logs,public,db}
+        docker run -d --name "$SERVICE_NAME" --restart=always -p "${pd}:4000" -e PORT=4000 -v "$dd/logs:/app/logs" -v "$dd/db:/app/db" -v "$dd/public:/app/public" "$DOCKER_IMAGE" && ok "Docker 升级完成"
+      else
+        [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]] || { warn "二进制版未安装"; return; }
+        systemctl stop $SERVICE_NAME 2>/dev/null
+        download_binary
+        tar -xzf "$dest" -C /tmp/nbpanel_install || err "解压失败"
+        local binary=$(find /tmp/nbpanel_install -name "$BINARY_NAME" -type f | head -1)
+        cp "$binary" "$INSTALL_DIR/bin/$BINARY_NAME" && chmod 755 "$INSTALL_DIR/bin/$BINARY_NAME"
+        systemctl start $SERVICE_NAME && ok "二进制升级完成"
+        rm -rf /tmp/nbpanel_install
+      fi
+      ;;
+    4) show_status ;;
+    5)
+      if docker ps --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
+        docker logs --tail 50 "$SERVICE_NAME"
+      elif systemctl is-active --quiet $SERVICE_NAME 2>/dev/null; then
+        journalctl -u $SERVICE_NAME -n 50 --no-pager
+      else
+        echo "无运行实例"
+      fi
+      ;;
+    0) exit 0 ;;
+    *) main_menu ;;
   esac
+
+  echo
+  readp "按回车键返回... " dummy
+  main_menu
 }
 
 # ---------- Main Entry ----------
@@ -239,21 +355,20 @@ main() {
   case "${1:-}" in
     -b|--binary) install_binary ;;
     -d|--docker) install_docker ;;
+    -r|--remove) uninstall_binary ;;
+    -R|--remove-docker) uninstall_docker ;;
+    -s|--status) show_status ;;
     -h|--help)
       echo "用法: bash install.sh [选项]"
-      echo "    -b, --binary    二进制安装"
-      echo "    -d, --docker    Docker 安装"
-      echo "    (无参数)         交互式菜单"
+      echo "  -b, --binary          二进制安装"
+      echo "  -d, --docker          Docker 安装"
+      echo "  -r, --remove          卸载二进制"
+      echo "  -R, --remove-docker   卸载 Docker"
+      echo "  -s, --status          查看状态"
+      echo "  (无参数)              交互菜单"
       exit 0
       ;;
-    *)
-      echo
-      echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-      echo -e " ${B}${C}  NB-Panel 安装脚本 v${VERSION}${N}"
-      echo -e " ${B}${C}  github.com/lima-droid/NB-Panel${N}"
-      echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-      install_menu
-      ;;
+    *) main_menu ;;
   esac
 }
 

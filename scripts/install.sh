@@ -317,16 +317,27 @@ main_menu() {
     1) install_menu ;;
     2)
       echo
-      echo "  卸载目标:"
-      echo "    1) 二进制"
-      echo "    2) Docker"
-      echo "    3) 全部"
-      readp "请选择 [1/2/3]: " u
-      case "$u" in
-        2) uninstall_docker ;;
-        3) uninstall_binary; uninstall_docker ;;
-        *) uninstall_binary ;;
-      esac
+      local has_bin=0 has_dkr=0
+      [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]] && has_bin=1
+      docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null && has_dkr=1
+      if [[ $has_bin -eq 1 && $has_dkr -eq 1 ]]; then
+        echo "  检测到两种安装方式:"
+        echo "    1) 二进制"
+        echo "    2) Docker"
+        echo "    3) 全部"
+        readp "请选择 [1/2/3]: " u
+        case "$u" in
+          2) uninstall_docker ;;
+          3) uninstall_binary; uninstall_docker ;;
+          *) uninstall_binary ;;
+        esac
+      elif [[ $has_dkr -eq 1 ]]; then
+        uninstall_docker
+      elif [[ $has_bin -eq 1 ]]; then
+        uninstall_binary
+      else
+        warn "未检测到已安装的 NB-Panel"
+      fi
       ;;
     3)
       echo

@@ -243,6 +243,25 @@ uninstall_docker() {
   ok "Docker 版已卸载"
 }
 
+
+# ---------- Install Menu ----------
+install_menu() {
+  echo
+  sep
+  echo -e " ${B}选择安装方式${N}"
+  sep
+  echo -e "   ${B}1${N}. 二进制"
+  echo -e "   ${B}2${N}. Docker"
+  sep
+  readp "请选择 [1/2]: " method
+  echo
+
+  case "$method" in
+    2) install_docker ;;
+    *) install_binary ;;
+  esac
+}
+
 # ---------- Status ----------
 show_status() {
   echo

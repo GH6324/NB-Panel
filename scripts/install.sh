@@ -39,25 +39,25 @@ detect_arch() {
 
 download_binary() {
   local url="https://github.com/lima-droid/NB-Panel/releases/latest/download/NB-Panel_$(detect_arch).tar.gz"
-  local dest="/tmp/nbpanel.tar.gz"
-  msg "Downloading NB-Panel v${VERSION}..."
+  dest="/tmp/nbpanel.tar.gz"
+  msg "下载 NB-Panel..."
 
   if command -v curl &>/dev/null; then
     curl -#L -o "$dest" "$url" || err "下载失败"
   else
     wget --show-progress -qO "$dest" "$url" || err "下载失败"
   fi
-  echo "$dest"
 }
 
 install_binary() {
-  local tarball dest_port ip_addr cert_path key_path tls_args
+  local dest_port ip_addr cert_path key_path tls_args
+  dest="/tmp/nbpanel.tar.gz"
 
-  tarball=$(download_binary)
+  download_binary
 
-  msg "Extracting..."
+  msg "解压安装包..."
   rm -rf /tmp/nbpanel_install && mkdir /tmp/nbpanel_install
-  tar -xzf "$tarball" -C /tmp/nbpanel_install || err "解压失败"
+  tar -xzf "$dest" -C /tmp/nbpanel_install || err "解压失败"
 
   local binary
   binary=$(find /tmp/nbpanel_install -name "$BINARY_NAME" -type f | head -1)

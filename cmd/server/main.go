@@ -418,7 +418,7 @@ func main() {
 	log.Info("使用 Gin 路由器 (标准架构)")
 	gin.SetMode(gin.ReleaseMode) // 设置为生产模式
 
-	ginRouter := router.SetupRouter(gormDB, sseService, sseManager, wsService, Version)
+	ginRouter := router.SetupRouter(gormDB, authService, endpointService, tunnelService, sseService, sseManager, wsService, dashboardService, Version)
 
 	// 配置静态文件服务
 	if err := setupStaticFiles(ginRouter); err != nil {
@@ -465,11 +465,7 @@ func main() {
 	trafficScheduler = startBackgroundServices(gormDB, sseService, sseManager, wsService)
 
 	// 记录未使用的变量以避免编译错误
-	_ = authService
-	_ = endpointService
-	_ = tunnelService
-	_ = dashboardService
-	_ = ctx
+_ = ctx
 
 	// 优雅关闭服务
 	gracefulShutdown(server, trafficScheduler, wsService, sseManager, sseService)

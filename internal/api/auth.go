@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -434,7 +434,7 @@ func (h *AuthHandler) HandleOAuth2Callback(c *gin.Context) {
 	}
 
 	// 打印回调日志，便于调试
-	fmt.Printf("📢 收到 OAuth2 回调 → provider=%s, code=%s, state=%s\n", provider, code, state)
+	log.Infof("[Auth] OAuth2 callback: provider=%s, code_len=%d, state_len=%d", provider, len(code), len(state))
 
 	switch provider {
 	case "github":
@@ -489,9 +489,9 @@ func (h *AuthHandler) handleGitHubOAuth(c *gin.Context, code string) {
 	}
 	form.Set("redirect_uri", redirectURI)
 
-	fmt.Printf("🔍 GitHub Token 请求参数: client_id=%s, redirect_uri=%s, token_url=%s\n",
+	log.Debugf("[Auth] GitHub Token request params: client_id=%s, redirect_uri=%s, token_url=%s",
 		cfg.ClientID, redirectURI, cfg.TokenURL)
-	fmt.Printf("🔍 请求体: %s\n", form.Encode())
+	log.Debugf("[Auth] Request body: %s", form.Encode())
 
 	tokenReq, _ := http.NewRequest("POST", cfg.TokenURL, strings.NewReader(form.Encode()))
 	tokenReq.Header.Set("Accept", "application/json")
@@ -501,21 +501,21 @@ func (h *AuthHandler) handleGitHubOAuth(c *gin.Context, code string) {
 	proxyClient := h.createProxyClient()
 	resp, err := proxyClient.Do(tokenReq)
 	if err != nil {
-		fmt.Printf("❌ GitHub Token 请求错误: %v\n", err)
+		log.Errorf("❌ GitHub Token 请求错误: %v\n", err)
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to request GitHub token"})
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		fmt.Printf("❌ GitHub Token 错误 %d: %s\n", resp.StatusCode, string(bodyBytes))
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Errorf("❌ GitHub Token 错误 %d: %s\n", resp.StatusCode, string(bodyBytes))
 		c.JSON(http.StatusBadGateway, gin.H{"error": "GitHub token endpoint returned error"})
 		return
 	}
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Printf("🔑 GitHub Token 响应: %s\n", string(body))
+	body, _ := io.ReadAll(resp.Body)
+	log.Debugf("[Auth] GitHub Token response: %s", string(body))
 
 	var tokenRes struct {
 		AccessToken string `json:"access_token"`
@@ -540,8 +540,8 @@ func (h *AuthHandler) handleGitHubOAuth(c *gin.Context, code string) {
 		return
 	}
 	defer userResp.Body.Close()
-	userBody, _ := ioutil.ReadAll(userResp.Body)
-	fmt.Printf("👤 GitHub 用户信息: %s\n", string(userBody))
+	userBody, _ := io.ReadAll(userResp.Body)
+	log.Debugf("[Auth] GitHub user info: %s", string(userBody))
 
 	var userData map[string]interface{}
 	_ = json.Unmarshal(userBody, &userData)
@@ -553,7 +553,7 @@ func (h *AuthHandler) handleGitHubOAuth(c *gin.Context, code string) {
 	// 保存用户信息
 	dataJSON, _ := json.Marshal(userData)
 	if err := h.authService.SaveOAuthUser("github", providerID, username, string(dataJSON)); err != nil {
-		fmt.Printf("❌ 保存 GitHub 用户失败: %v\n", err)
+		log.Errorf("❌ 保存 GitHub 用户失败: %v\n", err)
 		// 重定向到错误页面而不是返回 HTTP 错误
 		// 使用与配置中相同的 host 进行跳转
 		baseURL := ""
@@ -668,14 +668,14 @@ func (h *AuthHandler) handleCloudflareOAuth(c *gin.Context, code string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		fmt.Printf("❌ Cloudflare Token 错误 %d: %s\n", resp.StatusCode, string(bodyBytes))
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Errorf("❌ Cloudflare Token 错误 %d: %s\n", resp.StatusCode, string(bodyBytes))
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Cloudflare token endpoint returned error"})
 		return
 	}
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Printf("🔑 Cloudflare Token 响应: %s\n", string(body))
+	body, _ := io.ReadAll(resp.Body)
+	log.Debugf("[Auth] Cloudflare Token response: %s", string(body))
 
 	var tokenRes struct {
 		AccessToken string `json:"access_token"`
@@ -701,9 +701,9 @@ func (h *AuthHandler) handleCloudflareOAuth(c *gin.Context, code string) {
 		userResp, err := proxyClient.Do(userReq)
 		if err == nil {
 			defer userResp.Body.Close()
-			bodyBytes, _ := ioutil.ReadAll(userResp.Body)
+			bodyBytes, _ := io.ReadAll(userResp.Body)
 			_ = json.Unmarshal(bodyBytes, &userData)
-			fmt.Printf("👤 Cloudflare 用户信息: %s\n", string(bodyBytes))
+			log.Debugf("[Auth] Cloudflare user info: %s", string(bodyBytes))
 		}
 	}
 
@@ -713,7 +713,7 @@ func (h *AuthHandler) handleCloudflareOAuth(c *gin.Context, code string) {
 		if len(parts) >= 2 {
 			payload, _ := base64.RawURLEncoding.DecodeString(parts[1])
 			_ = json.Unmarshal(payload, &userData)
-			fmt.Printf("👤 Cloudflare id_token payload: %s\n", string(payload))
+			log.Debugf("[Auth] Cloudflare id_token payload: %s", string(payload))
 		}
 	}
 
@@ -727,9 +727,9 @@ func (h *AuthHandler) handleCloudflareOAuth(c *gin.Context, code string) {
 	if providerID == "<nil>" || providerID == "" {
 		// 如果 id 字段为空或 nil，则使用 sub 字段
 		providerID = fmt.Sprintf("%v", userData["sub"])
-		fmt.Printf("🔍 Cloudflare 使用 sub 字段作为 providerID: %s\n", providerID)
+		log.Debugf("[Auth] Cloudflare using sub as providerID: %s", providerID)
 	} else {
-		fmt.Printf("🔍 Cloudflare 使用 id 字段作为 providerID: %s\n", providerID)
+		log.Debugf("[Auth] Cloudflare using id as providerID: %s", providerID)
 	}
 
 	// 最终验证 providerID 是否有效
@@ -753,7 +753,7 @@ func (h *AuthHandler) handleCloudflareOAuth(c *gin.Context, code string) {
 	// 保存用户信息
 	dataJSON, _ := json.Marshal(userData)
 	if err := h.authService.SaveOAuthUser("cloudflare", providerID, username, string(dataJSON)); err != nil {
-		fmt.Printf("❌ 保存 Cloudflare 用户失败: %v\n", err)
+		log.Errorf("❌ 保存 Cloudflare 用户失败: %v\n", err)
 		// 重定向到错误页面而不是返回 HTTP 错误
 		// 使用与配置中相同的 host 进行跳转
 		baseURL := ""
@@ -884,7 +884,7 @@ func (h *AuthHandler) HandleOAuth2Config(c *gin.Context) {
 		_ = h.authService.SetSystemConfig("oauth2_provider", "")
 		// 清空所有 OAuth 用户信息
 		if err := h.authService.DeleteAllOAuthUsers(); err != nil {
-			fmt.Printf("⚠️ 清空 OAuth 用户信息失败: %v\n", err)
+			log.Errorf("⚠️ 清空 OAuth 用户信息失败: %v\n", err)
 		}
 
 		c.JSON(http.StatusOK, gin.H{"success": true})

@@ -298,10 +298,10 @@ show_status() {
 # ---------- Main Menu ----------
 main_menu() {
   echo
-  echo -e " ${B}${C}------------------------------------------------${N}"
-  echo -e " ${B}${C}  NB-Panel 管理脚本 v${VERSION}${N}"
+  echo -e " ${B}${C}----------------------------------------${N}"
+  echo -e " ${B}${C}     NB-Panel 管理脚本 v${VERSION}${N}"
   echo -e " ${B}${C}  github.com/lima-droid/NB-Panel${N}"
-  echo -e " ${B}${C}------------------------------------------------${N}"
+  echo -e " ${B}${C}----------------------------------------${N}"
   echo
   echo "    1. 安装"
   echo "    2. 卸载"

@@ -151,7 +151,7 @@ SVC
   echo -e " ${G}${B}安装完成${N}"
   sep
   echo -e "   ${B}URL:${N}     ${C}${proto}://${ip_addr}:${dest_port}${N}"
-  echo -e "   ${B}账号:${N} nbpanel / Np123456"
+  echo -e "   ${B}账号:${N}    nbpanel / Np123456"
   echo -e "   ${B}路径:${N}    $INSTALL_DIR/bin/$BINARY_NAME"
   echo -e "   ${B}配置:${N}    $INSTALL_DIR/config.env"
   sep

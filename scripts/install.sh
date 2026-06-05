@@ -9,8 +9,8 @@ set -eEuo pipefail
 trap 'error_handler $LINENO $?' ERR
 trap 'cleanup_temp' EXIT
 
-# 全局变量
-readonly VERSION="3.4.4"
+# 全局变量 - 修改变量名避免与系统环境变量冲突
+readonly SCRIPT_VERSION="3.4.4"  # 改名避免与 /etc/os-release 中的 VERSION 冲突
 readonly INSTALL_DIR="/opt/nodepassdash"
 readonly BINARY_NAME="nodepassdash"
 readonly SERVICE_NAME="nodepassdash"
@@ -150,17 +150,26 @@ install_dependencies() {
     esac
 }
 
-# 检测系统信息
+# 检测系统信息 - 避免变量名冲突
 detect_system() {
+    # 使用局部变量避免污染全局
+    local os_id os_version
+    
     if [[ -f /etc/os-release ]]; then
-        # source 前保存脚本 readonly VERSION，避免被覆盖
-        local _os_v="${VERSION:-}"
-        . /etc/os-release
-        [[ -n "$_os_v" ]] && VERSION="$_os_v"
-        OS=$ID
-        VERSION_ID=$VERSION_ID
+        # 使用 source 前先保存可能冲突的变量
+        {
+            . /etc/os-release
+            os_id="${ID:-unknown}"
+            os_version="${VERSION_ID:-unknown}"
+        } 2>/dev/null || {
+            os_id="unknown"
+            os_version="unknown"
+        }
+        OS="$os_id"
+        VERSION_ID="$os_version"
     else
         OS=$(uname -s)
+        VERSION_ID="unknown"
     fi
     
     case "$(uname -m)" in
@@ -171,7 +180,7 @@ detect_system() {
         *) err "不支持的架构: $(uname -m)" ;;
     esac
     
-    if [[ "$(ps -p 1 -o comm=)" == "systemd" ]]; then
+    if [[ "$(ps -p 1 -o comm= 2>/dev/null)" == "systemd" ]] 2>/dev/null; then
         INIT_SYSTEM="systemd"
     elif [[ -f /sbin/openrc ]]; then
         INIT_SYSTEM="openrc"
@@ -242,9 +251,9 @@ check_port() {
     local port=$1
     if command -v ss &>/dev/null; then
         # 精确匹配端口号（前后加空格或冒号）
-        ss -tuln | grep -E ":$port(\s|$)" >/dev/null 2>&1 && return 1
+        ss -tuln 2>/dev/null | grep -E ":$port(\s|$)" >/dev/null 2>&1 && return 1
     elif command -v netstat &>/dev/null; then
-        netstat -tuln | grep -E ":$port(\s|$)" >/dev/null 2>&1 && return 1
+        netstat -tuln 2>/dev/null | grep -E ":$port(\s|$)" >/dev/null 2>&1 && return 1
     elif command -v lsof &>/dev/null; then
         lsof -i ":$port" &>/dev/null && return 1
     fi
@@ -764,7 +773,7 @@ main_menu() {
     while true; do
         echo
         echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-        echo -e " ${B}${C}  NB-Panel 管理脚本 v${VERSION}${N}"
+        echo -e " ${B}${C}  NB-Panel 管理脚本 v${SCRIPT_VERSION}${N}"
         echo -e " ${B}${C}  github.com/lima-droid/NB-Panel${N}"
         echo -e " ${B}${C}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
         echo
@@ -798,7 +807,7 @@ main() {
     detect_system
     
     mkdir -p "$(dirname "$LOG_FILE")"
-    log "Starting NB-Panel installer v$VERSION"
+    log "Starting NB-Panel installer v$SCRIPT_VERSION"
     
     case "${1:-}" in
         -b|--binary) install_binary ;;

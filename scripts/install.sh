@@ -21,21 +21,21 @@ readonly BOLD="${ESC}[1m" DIM="${ESC}[2m" ITALIC="${ESC}[3m" RESET="${ESC}[0m"
 # 背景色
 readonly BG_RED="${ESC}[41m" BG_GREEN="${ESC}[42m" BG_BLUE="${ESC}[44m"
 
-# ==================== 图标 ====================
-readonly ICON_INFO="ℹ️"
-readonly ICON_SUCCESS="✅"
-readonly ICON_WARN="⚠️"
-readonly ICON_ERROR="❌"
-readonly ICON_INSTALL="📦"
-readonly ICON_DOCKER="🐳"
-readonly ICON_SETTING="⚙️"
-readonly ICON_TRASH="🗑️"
-readonly ICON_UPGRADE="🔄"
-readonly ICON_STATS="📊"
-readonly ICON_LOGS="📝"
-readonly ICON_EXIT="🚪"
-readonly ICON_ARROW="➜"
-readonly ICON_STAR="⭐"
+# ==================== 纯文本图标 ====================
+readonly ICON_INFO="[i]"
+readonly ICON_SUCCESS="[OK]"
+readonly ICON_WARN="[!]"
+readonly ICON_ERROR="[X]"
+readonly ICON_INSTALL=">>"
+readonly ICON_DOCKER="<>"
+readonly ICON_SETTING="[*]"
+readonly ICON_TRASH="[-]"
+readonly ICON_UPGRADE="^^"
+readonly ICON_STATS="[*]"
+readonly ICON_LOGS="[+]"
+readonly ICON_EXIT="[x]"
+readonly ICON_ARROW="->"
+readonly ICON_STAR="*"
 
 # ==================== 界面函数 ====================
 msg()   { echo -e " ${BOLD}${C}${ICON_INFO}${RESET}${BOLD} $*${RESET}"; }
@@ -57,7 +57,7 @@ menu_item() {
   local num="$1"
   local name="$2"
   local icon="$3"
-  printf "  ${BOLD}${C}[${num}]${RESET}  ${icon}  ${BOLD}%-15s${RESET}\n" "$name"
+  printf "  ${BOLD}${C}[${num}]${RESET}  %s  ${BOLD}%-15s${RESET}\n" "$icon" "$name"
 }
 
 readp() {
@@ -136,7 +136,7 @@ install_binary() {
 
   echo
   sep
-  echo -e " ${BOLD}${C}⚙️  配置选项${RESET}"
+  echo -e " ${BOLD}${C}[*] 配置选项${RESET}"
   sep
 
   readp_default "监听端口" dest_port "4000"
@@ -224,11 +224,11 @@ EOF
   echo -e " ${BG_GREEN}${BOLD} 安装完成！ ${RESET}"
   hr
   echo
-  echo -e "   ${BOLD}${C}🔗 访问地址:${RESET}    ${proto}://${ip_addr}:${dest_port}"
-  echo -e "   ${BOLD}${C}👤 默认账号:${RESET}    nbpanel"
-  echo -e "   ${BOLD}${C}🔑 默认密码:${RESET}    Np123456"
-  echo -e "   ${BOLD}${C}📁 安装路径:${RESET}    $INSTALL_DIR/bin/$BINARY_NAME"
-  echo -e "   ${BOLD}${C}⚙️  配置文件:${RESET}    $INSTALL_DIR/config.env"
+  echo -e "   ${BOLD}${C}访问地址:${RESET}    ${proto}://${ip_addr}:${dest_port}"
+  echo -e "   ${BOLD}${C}默认账号:${RESET}    nbpanel"
+  echo -e "   ${BOLD}${C}默认密码:${RESET}    Np123456"
+  echo -e "   ${BOLD}${C}安装路径:${RESET}    $INSTALL_DIR/bin/$BINARY_NAME"
+  echo -e "   ${BOLD}${C}配置文件:${RESET}    $INSTALL_DIR/config.env"
   echo
   hr
   echo
@@ -291,10 +291,10 @@ install_docker() {
   echo -e " ${BG_GREEN}${BOLD} 安装完成！ ${RESET}"
   hr
   echo
-  echo -e "   ${BOLD}${C}🔗 访问地址:${RESET}    http://${ip_addr}:${port_host}"
-  echo -e "   ${BOLD}${C}👤 默认账号:${RESET}    nbpanel"
-  echo -e "   ${BOLD}${C}🔑 默认密码:${RESET}    Np123456"
-  echo -e "   ${BOLD}${C}📁 数据目录:${RESET}    ${data_dir}"
+  echo -e "   ${BOLD}${C}默认账号:${RESET}    nbpanel"
+  echo -e "   ${BOLD}${C}默认密码:${RESET}    Np123456"
+  echo -e "   ${BOLD}${C}数据目录:${RESET}    ${data_dir}"
+  echo -e "   ${BOLD}${C}访问地址:${RESET}    http://${ip_addr}:${port_host}"
   echo
   hr
   echo
@@ -383,31 +383,31 @@ show_status() {
   echo
 
   # 二进制状态
-  echo -e " ${BOLD}${C}📦 二进制安装${RESET}"
+  echo -e " ${BOLD}${C}[二进制]${RESET}"
   if [[ -f "$INSTALL_DIR/bin/$BINARY_NAME" ]]; then
     if systemctl is-active --quiet $SERVICE_NAME 2>/dev/null; then
-      echo -e "   ${G}●${RESET} 状态: ${G}运行中${RESET}"
+      echo -e "   状态: ${G}运行中${RESET}"
       local port=$(grep ^PORT= "$INSTALL_DIR/config.env" 2>/dev/null | cut -d= -f2)
-      echo -e "   ${C}🔌${RESET} 端口: ${port:-4000}"
+      echo -e "   端口: ${port:-4000}"
     else
-      echo -e "   ${R}○${RESET} 状态: ${R}已停止${RESET}"
+      echo -e "   状态: ${R}已停止${RESET}"
     fi
   else
-    echo -e "   ${DIM}未安装${RESET}"
+    echo -e "   状态: ${DIM}未安装${RESET}"
   fi
 
   echo
-  echo -e " ${BOLD}${C}🐳 Docker 安装${RESET}"
+  echo -e " ${BOLD}${C}[Docker]${RESET}"
   if docker ps -a --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
     if docker ps --format '{{.Names}}' | grep -q "^${SERVICE_NAME}$" 2>/dev/null; then
-      echo -e "   ${G}●${RESET} 状态: ${G}运行中${RESET}"
+      echo -e "   状态: ${G}运行中${RESET}"
       local port=$(docker port "$SERVICE_NAME" 2>/dev/null | head -1 | sed 's/.*://')
-      echo -e "   ${C}🔌${RESET} 端口: ${port:-4000}"
+      echo -e "   端口: ${port:-4000}"
     else
-      echo -e "   ${R}○${RESET} 状态: ${R}已停止${RESET}"
+      echo -e "   状态: ${R}已停止${RESET}"
     fi
   else
-    echo -e "   ${DIM}未安装${RESET}"
+    echo -e "   状态: ${DIM}未安装${RESET}"
   fi
 
   echo
@@ -433,7 +433,7 @@ show_logs() {
     echo
     journalctl -u $SERVICE_NAME -n 30 --no-pager
   else
-    echo "   ${DIM}无运行实例${RESET}"
+    echo -e "   ${DIM}无运行实例${RESET}"
   fi
 
   echo
@@ -446,7 +446,7 @@ show_menu() {
   title
   echo
   sep
-  echo -e " ${BOLD}${C}✨ 请选择操作${RESET}"
+  echo -e " ${BOLD}${C}[*] 请选择操作${RESET}"
   sep
   echo
   menu_item "1" "安装" "${ICON_INSTALL}"

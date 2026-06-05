@@ -208,9 +208,9 @@ install_docker() {
   sep
   echo -e " ${G}安装完成${N}"
   sep
-  echo -e "   URL:     ${C}http://${ip_addr}:${port_host}${N}"
   echo -e "   账号:    nbpanel / Np123456"
   echo -e "   数据:    ${data_dir}"
+  echo -e "   URL:     ${C}http://${ip_addr}:${port_host}${N}"
   sep
   echo
 }

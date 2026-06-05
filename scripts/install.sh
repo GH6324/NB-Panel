@@ -153,7 +153,10 @@ install_dependencies() {
 # 检测系统信息
 detect_system() {
     if [[ -f /etc/os-release ]]; then
+        # source 前保存脚本 readonly VERSION，避免被覆盖
+        local _os_v="${VERSION:-}"
         . /etc/os-release
+        [[ -n "$_os_v" ]] && VERSION="$_os_v"
         OS=$ID
         VERSION_ID=$VERSION_ID
     else

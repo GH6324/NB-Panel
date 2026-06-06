@@ -1,9 +1,9 @@
 package api
 
 import (
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/metrics"
-	"NodePassDash/internal/tunnel"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/metrics"
+	"nb-panel/internal/tunnel"
 	"database/sql"
 	"net/http"
 	"strconv"

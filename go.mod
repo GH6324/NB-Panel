@@ -1,4 +1,4 @@
-module NodePassDash
+module nb-panel
 
 go 1.23.0
 

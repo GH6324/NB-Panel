@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 import { buildApiUrl, getAuthToken } from "@/lib/utils";
 
-interface NodePassSSEOptions {
+interface NPSSEOptions {
   onMessage?: (data: any) => void;
   onError?: (error: any) => void;
   onConnected?: () => void;
@@ -10,15 +10,15 @@ interface NodePassSSEOptions {
   autoReconnect?: boolean; // 是否自动重连，默认false
 }
 
-interface NodePassEndpoint {
+interface NPEndpoint {
   url: string;
   apiPath: string;
   apiKey: string;
 }
 
-export function useNodePassSSE(
-  endpoint: NodePassEndpoint | null,
-  options: NodePassSSEOptions = {},
+export function useNPSSE(
+  endpoint: NPEndpoint | null,
+  options: NPSSEOptions = {},
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -81,7 +81,7 @@ export function useNodePassSSE(
   }, []);
 
   const connect = useCallback(
-    (endpoint: NodePassEndpoint) => {
+    (endpoint: NPEndpoint) => {
       // 如果已经在连接中，避免重复连接
       if (isConnecting || eventSourceRef.current) {
         console.log("[NB SSE] 连接已存在，跳过重复连接");
@@ -105,7 +105,7 @@ export function useNodePassSSE(
         // 使用后端代理接口连接NB SSE
         const token = getAuthToken();
         const proxyUrl = buildApiUrl(
-          `/api/sse/nodepass-proxy?endpointId=${btoa(
+          `/api/sse/np-proxy?endpointId=${btoa(
             JSON.stringify({
               url: endpoint.url,
               apiPath: endpoint.apiPath,

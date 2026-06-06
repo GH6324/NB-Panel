@@ -1,7 +1,7 @@
 package api
 
 import (
-	"NodePassDash/internal/group"
+	"nb-panel/internal/group"
 	"net/http"
 	"strconv"
 

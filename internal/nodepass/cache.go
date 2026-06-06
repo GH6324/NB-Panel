@@ -1,7 +1,7 @@
 package nodepass
 
 import (
-	"NodePassDash/internal/models"
+	"nb-panel/internal/models"
 	"fmt"
 	"gorm.io/gorm"
 	"sync"

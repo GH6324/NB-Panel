@@ -1,8 +1,8 @@
 package cleanup
 
 import (
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/models"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/models"
 	"context"
 	"fmt"
 	"sync"

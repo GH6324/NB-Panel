@@ -1,12 +1,12 @@
 package api
 
 import (
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/metrics"
-	"NodePassDash/internal/models"
-	"NodePassDash/internal/nodepass"
-	"NodePassDash/internal/sse"
-	"NodePassDash/internal/tunnel"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/metrics"
+	"nb-panel/internal/models"
+	"nb-panel/internal/nodepass"
+	"nb-panel/internal/sse"
+	"nb-panel/internal/tunnel"
 	"archive/zip"
 	"bytes"
 	"database/sql"
@@ -2785,7 +2785,7 @@ func (h *TunnelHandler) HandleGetTunnelPoolTrend(c *gin.Context) {
 
 // HandleUpdateTunnelV2 新版隧道更新逻辑 (PUT /api/tunnels/{id})
 // 特点：
-// 1. 不再删除后重建，而是构建命令行后调用 NodePass PUT /v1/instance/{id}
+// 1. 不再删除后重建，而是构建命令行后调用 NP PUT /v1/instance/{id}
 // 2. 调用成功后等待 SSE 更新数据库中的 commandLine 字段；超时则直接更新本地数据库。
 // 3. 若远端返回 405 等错误，则回退到旧逻辑 HandleUpdateTunnel。
 func (h *TunnelHandler) HandleUpdateTunnelV3(c *gin.Context) {
@@ -3176,7 +3176,7 @@ func (h *TunnelHandler) HandleTunnelTCPing(c *gin.Context) {
 		return
 	}
 
-	// 调用NodePass的TCPing接口
+	// 调用NP的TCPing接口
 	result, err := nodepass.TCPing(endpointID, req.Target)
 	if err != nil {
 		log.Errorf("[API]隧道TCPing测试失败: instanceID=%s, target=%s, err=%v", instanceID, req.Target, err)
@@ -3248,7 +3248,7 @@ func (h *TunnelHandler) HandleUpdateInstanceTags(c *gin.Context) {
 		return
 	}
 
-	// 调用NodePass API更新标签
+	// 调用NP API更新标签
 	result, err := nodepass.UpdateInstanceTags(endpointID, instanceID, requestData)
 	if err != nil {
 		log.Errorf("[API]更新标签失败: tunnelID=%d, instanceID=%s, err=%v", tunnelID, instanceID, err)

@@ -1,7 +1,7 @@
 package traffic
 
 import (
-	log "NodePassDash/internal/log"
+	log "nb-panel/internal/log"
 	"context"
 	"fmt"
 	"sync"

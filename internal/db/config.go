@@ -1,7 +1,7 @@
 package db
 
 import (
-	log "NodePassDash/internal/log"
+	log "nb-panel/internal/log"
 	"flag"
 	"fmt"
 	"os"

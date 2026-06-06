@@ -131,8 +131,8 @@ export function useTunnelSSE(instanceId: string, options: SSEOptions = {}) {
   return eventSourceRef.current;
 }
 
-// NodePass主控SSE监听 - 直接连接到NodePass主控的SSE接口
-export function useNodePassSSE(
+// NP主控SSE监听 - 直接连接到NP主控的SSE接口
+export function useNPSSE(
   endpointDetail: { url: string; apiPath: string; apiKey: string } | null,
   options: SSEOptions = {},
 ) {
@@ -155,10 +155,10 @@ export function useNodePassSSE(
 
     isMountedRef.current = true;
 
-    // 构建NodePass SSE URL: {URL}{APIPath}/events
+    // 构建NP SSE URL: {URL}{APIPath}/events
     const sseUrl = `${endpointDetail.url}${endpointDetail.apiPath}/events`;
 
-    console.log("[NodePass SSE] 直接连接到:", sseUrl);
+    console.log("[NP SSE] 直接连接到:", sseUrl);
 
     const connectToSSE = async () => {
       try {
@@ -186,7 +186,7 @@ export function useNodePassSSE(
           throw new Error("Response body is null");
         }
 
-        console.log("[NodePass SSE] 连接成功，开始读取流");
+        console.log("[NP SSE] 连接成功，开始读取流");
 
         // 触发连接成功回调
         if (isMountedRef.current) {
@@ -205,7 +205,7 @@ export function useNodePassSSE(
             const { done, value } = await reader.read();
 
             if (done) {
-              console.log("[NodePass SSE] 流结束");
+              console.log("[NP SSE] 流结束");
               break;
             }
 
@@ -233,14 +233,14 @@ export function useNodePassSSE(
                   // 尝试解析JSON数据
                   const parsedData = JSON.parse(data);
 
-                  console.log("[NodePass SSE] 收到JSON消息:", parsedData);
+                  console.log("[NP SSE] 收到JSON消息:", parsedData);
 
                   if (isMountedRef.current) {
                     onMessage(parsedData);
                   }
                 } catch (parseError) {
                   // 如果不是JSON，当作纯文本日志处理
-                  console.log("[NodePass SSE] 收到文本消息:", data);
+                  console.log("[NP SSE] 收到文本消息:", data);
 
                   if (isMountedRef.current) {
                     onMessage({
@@ -257,13 +257,13 @@ export function useNodePassSSE(
         }
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
-          console.log("[NodePass SSE] 连接被主动取消");
+          console.log("[NP SSE] 连接被主动取消");
 
           return;
         }
 
         if (isMountedRef.current) {
-          console.error("[NodePass SSE] 连接错误:", error);
+          console.error("[NP SSE] 连接错误:", error);
           onError(error);
         }
       }
@@ -272,7 +272,7 @@ export function useNodePassSSE(
     connectToSSE();
 
     return () => {
-      console.log("[NodePass SSE] 清理连接");
+      console.log("[NP SSE] 清理连接");
       isMountedRef.current = false;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();

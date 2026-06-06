@@ -1,10 +1,10 @@
 package tunnel
 
 import (
-	"NodePassDash/internal/db"
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/models"
-	"NodePassDash/internal/nodepass"
+	"nb-panel/internal/db"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/models"
+	"nb-panel/internal/nodepass"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -196,7 +196,7 @@ func (s *Service) CreateTunnel(req CreateTunnelRequest) (*Tunnel, error) {
 		commandLine += "?" + strings.Join(queryParams, "&")
 	}
 
-	// 4. 使用 NodePass 客户端创建实例
+	// 4. 使用 NP 客户端创建实例
 	response, err := nodepass.CreateInstance(endpoint.ID, commandLine)
 	if err != nil {
 		log.Errorf("[NB] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
@@ -378,8 +378,8 @@ func (s *Service) DeleteTunnel(instanceID string) error {
 	}
 
 	if err := nodepass.DeleteInstance(tunnelWithEndpoint.Endpoint.ID, instanceID); err != nil {
-		// 如果收到401或404错误，说明NodePass核心已经没有这个实例了
-		if strings.Contains(err.Error(), "NodePass API 返回错误: 401") || strings.Contains(err.Error(), "NodePass API 返回错误: 404") {
+		// 如果收到401或404错误，说明NP核心已经没有这个实例了
+		if strings.Contains(err.Error(), "NP API 返回错误: 401") || strings.Contains(err.Error(), "NP API 返回错误: 404") {
 			log.Warnf("[API] NB API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", instanceID)
 		} else {
 			log.Errorf("[API] NB API 删除失败: %v", err)
@@ -446,7 +446,7 @@ func (s *Service) ControlTunnel(req TunnelActionRequest) error {
 		return err
 	}
 
-	// 调用 NodePass API
+	// 调用 NP API
 	if _, err = nodepass.ControlInstance(tunnelWithEndpoint.Endpoint.ID, req.InstanceID, req.Action); err != nil {
 		return err
 	}
@@ -695,7 +695,7 @@ func (s *Service) UpdateTunnel(req UpdateTunnelRequest) error {
 		return err
 	}
 
-	// 调用 NodePass API 更新隧道实例
+	// 调用 NP API 更新隧道实例
 	if _, err := nodepass.UpdateInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, commandLine); err != nil {
 		// 若远端未实现新版接口(如返回405 Method Not Allowed)，回退旧版接口
 		if strings.Contains(err.Error(), "405") {
@@ -834,10 +834,10 @@ func (s *Service) DeleteTunnelAndWait(instanceID string, timeout time.Duration, 
 		}
 	}
 	if instanceID != "" {
-		// 调用 NodePass API 删除实例
+		// 调用 NP API 删除实例
 		if err := nodepass.DeleteInstance(tunnelWithEndpoint.Endpoint.ID, instanceID); err != nil {
-			// 如果收到401或404错误，说明NodePass核心已经没有这个实例了，按删除成功处理
-			if strings.Contains(err.Error(), "NodePass API 返回错误: 401") || strings.Contains(err.Error(), "NodePass API 返回错误: 404") {
+			// 如果收到401或404错误，说明NP核心已经没有这个实例了，按删除成功处理
+			if strings.Contains(err.Error(), "NP API 返回错误: 401") || strings.Contains(err.Error(), "NP API 返回错误: 404") {
 				log.Warnf("[API] NB API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", instanceID)
 			} else {
 				return err
@@ -923,10 +923,10 @@ func (s *Service) DeleteTunnelIdAndWait(timeout time.Duration, id *int64) error 
 	}
 
 	if tunnelWithEndpoint.InstanceID != nil {
-		// 调用 NodePass API 删除实例
+		// 调用 NP API 删除实例
 		if err := nodepass.DeleteInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID); err != nil {
-			// 如果收到401或404错误，说明NodePass核心已经没有这个实例了，按删除成功处理
-			if strings.Contains(err.Error(), "NodePass API 返回错误: 401") || strings.Contains(err.Error(), "NodePass API 返回错误: 404") {
+			// 如果收到401或404错误，说明NP核心已经没有这个实例了，按删除成功处理
+			if strings.Contains(err.Error(), "NP API 返回错误: 401") || strings.Contains(err.Error(), "NP API 返回错误: 404") {
 				log.Warnf("[API] NB API 返回401/404错误，实例 %s 可能已不存在，继续删除本地记录", *tunnelWithEndpoint.InstanceID)
 			} else {
 				return err
@@ -988,7 +988,7 @@ func (s *Service) DeleteTunnelIdAndWait(timeout time.Duration, id *int64) error 
 	return nil
 }
 
-// CreateTunnelAndWait 先调用 NodePass API 创建隧道，等待 SSE 通知数据库记录后更新名称
+// CreateTunnelAndWait 先调用 NP API 创建隧道，等待 SSE 通知数据库记录后更新名称
 // 如果等待超时，则回退到原来的手动创建逻辑
 func (s *Service) CreateTunnelAndWait(req CreateTunnelRequest, timeout time.Duration) (*Tunnel, error) {
 	log.Infof("[API] 创建隧道（等待模式）: %v", req.Name)
@@ -1080,7 +1080,7 @@ func (s *Service) CreateTunnelAndWait(req CreateTunnelRequest, timeout time.Dura
 
 	log.Infof("[API] 构建的命令行: %s", commandLine)
 
-	// 1. 使用 NodePass 客户端创建实例
+	// 1. 使用 NP 客户端创建实例
 	resp, err := nodepass.CreateInstance(endpoint.ID, commandLine)
 	if err != nil {
 		log.Errorf("[NB] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
@@ -1354,7 +1354,7 @@ func (s *Service) CreateTunnelAndWait(req CreateTunnelRequest, timeout time.Dura
 	return tunnel, nil
 }
 
-// CreateTunnelAndWait 先调用 NodePass API 创建隧道，等待 SSE 通知数据库记录后更新名称
+// CreateTunnelAndWait 先调用 NP API 创建隧道，等待 SSE 通知数据库记录后更新名称
 // 如果等待超时，则回退到原来的手动创建逻辑
 func (s *Service) NewCreateTunnelAndWait(req Tunnel, timeout time.Duration) (*Tunnel, error) {
 	log.Infof("[API] 创建隧道（等待模式）: %v", req.Name)
@@ -1373,7 +1373,7 @@ func (s *Service) NewCreateTunnelAndWait(req Tunnel, timeout time.Duration) (*Tu
 	var commandLine string = nodepass.BuildTunnelURLs(req)
 	log.Infof("[API] 构建的命令行: %s", commandLine)
 
-	// 1. 使用 NodePass 客户端创建实例
+	// 1. 使用 NP 客户端创建实例
 	resp, err := nodepass.CreateInstance(endpoint.ID, commandLine)
 	if err != nil {
 		log.Errorf("[NB] 创建实例失败 endpoint=%d cmd=%s err=%v", req.EndpointID, commandLine, err)
@@ -1559,13 +1559,13 @@ func (s *Service) PatchTunnel(id int64, updates map[string]interface{}) error {
 		}
 	}
 
-	// 调用 NodePass API 更新远程实例
+	// 调用 NP API 更新远程实例
 
 	// 处理别名更新
 	if alias, ok := remoteUpdates["alias"]; ok {
 		aliasStr := alias.(string)
 		if _, err := nodepass.RenameInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, aliasStr); err != nil {
-			// 检查是否为 404 错误（旧版本 NodePass 不支持）
+			// 检查是否为 404 错误（旧版本 NP 不支持）
 			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
 				log.Warnf("[API] NB API 不支持重命名功能（可能是旧版本）: %v", err)
 				// 不返回错误，继续执行
@@ -1579,7 +1579,7 @@ func (s *Service) PatchTunnel(id int64, updates map[string]interface{}) error {
 	return nil
 }
 
-// SetTunnelAlias 为隧道设置别名（调用 NodePass API）
+// SetTunnelAlias 为隧道设置别名（调用 NP API）
 func (s *Service) SetTunnelAlias(tunnelID int64, alias string) error {
 	log.Infof("[API] 设置隧道别名: tunnelID=%d, alias=%s", tunnelID, alias)
 
@@ -1598,9 +1598,9 @@ func (s *Service) SetTunnelAlias(tunnelID int64, alias string) error {
 		return errors.New("隧道没有关联的实例ID")
 	}
 
-	// 调用 NodePass API 设置别名
+	// 调用 NP API 设置别名
 	if _, err := nodepass.RenameInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, alias); err != nil {
-		// 检查是否为 404 错误（旧版本 NodePass 不支持）
+		// 检查是否为 404 错误（旧版本 NP 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
 			log.Warnf("[API] NB API 不支持别名功能（可能是旧版本），跳过设置: %v", err)
 			return nil // 不返回错误，继续执行
@@ -1635,9 +1635,9 @@ func (s *Service) RenameTunnel(id int64, newName string) error {
 		return errors.New("隧道没有关联的实例ID")
 	}
 
-	// 首先调用 NodePass API 尝试重命名远程实例
+	// 首先调用 NP API 尝试重命名远程实例
 	if _, err := nodepass.RenameInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, newName); err != nil {
-		// 检查是否为 404 错误（旧版本 NodePass 不支持）
+		// 检查是否为 404 错误（旧版本 NP 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
 			log.Warnf("[API] NB API 不支持重命名功能（可能是旧版本），仅更新本地记录: %v", err)
 			// 继续执行本地更新
@@ -2297,7 +2297,7 @@ func (s *Service) NewBatchCreateTunnels(req NewBatchCreateRequest) (*NewBatchCre
 	return response, nil
 }
 
-// SetTunnelRestart 设置隧道重启策略（只有在 NodePass API 调用成功后才更新数据库）
+// SetTunnelRestart 设置隧道重启策略（只有在 NP API 调用成功后才更新数据库）
 func (s *Service) SetTunnelRestart(tunnelID int64, restart bool) error {
 	log.Infof("[API] 设置隧道重启策略: tunnelID=%d, restart=%t", tunnelID, restart)
 
@@ -2316,9 +2316,9 @@ func (s *Service) SetTunnelRestart(tunnelID int64, restart bool) error {
 		return errors.New("隧道没有关联的实例ID")
 	}
 
-	// 先调用 NodePass API 设置重启策略
+	// 先调用 NP API 设置重启策略
 	if _, err := nodepass.SetRestartInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, restart); err != nil {
-		// 检查是否为 404 错误（旧版本 NodePass 不支持）
+		// 检查是否为 404 错误（旧版本 NP 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
 			log.Warnf("[API] NB API 不支持重启策略功能（可能是旧版本）: %v", err)
 			return errors.New("当前实例不支持自动重启功能")
@@ -2328,7 +2328,7 @@ func (s *Service) SetTunnelRestart(tunnelID int64, restart bool) error {
 		}
 	}
 
-	// 只有 NodePass API 调用成功后才更新数据库
+	// 只有 NP API 调用成功后才更新数据库
 	err = s.db.Model(&models.Tunnel{}).Where("id = ?", tunnelID).Updates(map[string]interface{}{
 		"restart":    restart,
 		"updated_at": time.Now(),
@@ -2370,9 +2370,9 @@ func (s *Service) ResetTunnelTraffic(tunnelID int64) error {
 	if tunnelWithEndpoint.InstanceID == nil || *tunnelWithEndpoint.InstanceID == "" {
 		log.Warnf("[API] 隧道没有关联的实例ID，只重置本地数据库流量统计")
 	} else {
-		// 先调用 NodePass API 重置流量统计
+		// 先调用 NP API 重置流量统计
 		if _, err := nodepass.ControlInstance(tunnelWithEndpoint.Endpoint.ID, *tunnelWithEndpoint.InstanceID, "reset"); err != nil {
-			// 检查是否为 404 错误（旧版本 NodePass 不支持）
+			// 检查是否为 404 错误（旧版本 NP 不支持）
 			if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
 				log.Warnf("[API] NB API 不支持重置流量功能（可能是旧版本）: %v", err)
 				return errors.New("当前实例不支持重置流量功能")
@@ -2431,9 +2431,9 @@ func (s *Service) ResetTunnelTrafficByInstanceID(instanceID string) error {
 		return fmt.Errorf("查询隧道失败: %v", err)
 	}
 
-	// 先调用 NodePass API 重置流量统计
+	// 先调用 NP API 重置流量统计
 	if _, err := nodepass.ControlInstance(tunnelWithEndpoint.Endpoint.ID, instanceID, "reset"); err != nil {
-		// 检查是否为 404 错误（旧版本 NodePass 不支持）
+		// 检查是否为 404 错误（旧版本 NP 不支持）
 		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found") {
 			log.Warnf("[API] NB API 不支持重置流量功能（可能是旧版本）: %v", err)
 			return errors.New("当前实例不支持重置流量功能")
@@ -3009,7 +3009,7 @@ func (s *Service) MigrateServiceSID() (int64, error) {
 	return updatedCount, nil
 }
 
-// QuickCreateTunnelDirectURL 根据完整 URL 快速创建隧道实例，直接传递URL给NodePass API
+// QuickCreateTunnelDirectURL 根据完整 URL 快速创建隧道实例，直接传递URL给NP API
 // 这个方法避免了URL解析->重新组装的过程，提高性能并减少错误风险
 func (s *Service) QuickCreateTunnelDirectURL(endpointID int64, rawURL string, name string, timeout time.Duration) error {
 	// 1. 基本验证：只解析URL进行格式验证，但不使用解析结果重新组装
@@ -3039,7 +3039,7 @@ func (s *Service) QuickCreateTunnelDirectURL(endpointID int64, rawURL string, na
 		return fmt.Errorf("查询端点信息失败: %v", err)
 	}
 
-	// 4. 直接使用原始URL调用NodePass API创建实例
+	// 4. 直接使用原始URL调用NP API创建实例
 	log.Infof("[NB] 直接URL创建实例 endpoint=%d url=%s", endpointID, rawURL)
 
 	resp, err := nodepass.CreateInstance(endpointID, rawURL)
@@ -3107,7 +3107,7 @@ func (s *Service) QuickCreateTunnelDirectURL(endpointID int64, rawURL string, na
 		return nil
 	}
 
-	// 10. 等待超时，记录警告但不执行手动创建（因为实例已经在NodePass中创建）
+	// 10. 等待超时，记录警告但不执行手动创建（因为实例已经在NP中创建）
 	log.Warnf("[API] 直接URL等待SSE超时，但NB实例已创建: instanceID=%s", resp.ID)
 
 	// 记录失败的操作日志

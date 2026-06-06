@@ -1,8 +1,8 @@
 package metrics
 
 import (
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/models"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/models"
 	"strconv"
 	"sync"
 	"time"

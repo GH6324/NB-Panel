@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 
 import { buildApiUrl } from "@/lib/utils";
 import { LogViewer, LogEntry } from "@/components/ui/log-viewer";
-import { useNodePassSSE } from "@/lib/hooks/use-nodepass-sse";
+import { useNPSSE } from "@/lib/hooks/use-nodepass-sse";
 
 // 主控详情接口定义
 interface EndpointDetail {
@@ -120,7 +120,7 @@ export default function SSEDebugPage() {
 
   // NB SSE监听 - 手动模式
   const { isConnected, isConnecting, error, connect, disconnect, reconnect } =
-    useNodePassSSE(endpoint, {
+    useNPSSE(endpoint, {
       autoReconnect: false, // 禁用自动重连，手动控制
       onConnected: () => {
         console.log("[SSE Debug] 连接成功");

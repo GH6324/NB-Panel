@@ -1,12 +1,12 @@
 package api
 
 import (
-	"NodePassDash/internal/db"
-	"NodePassDash/internal/endpoint"
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/models"
-	"NodePassDash/internal/nodepass"
-	"NodePassDash/internal/sse"
+	"nb-panel/internal/db"
+	"nb-panel/internal/endpoint"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/models"
+	"nb-panel/internal/nodepass"
+	"nb-panel/internal/sse"
 	"crypto/tls"
 	"database/sql"
 	"encoding/json"
@@ -859,7 +859,7 @@ func (h *EndpointHandler) HandleGetEndpointInfo(c *gin.Context) {
 			storedUptime = ep.Uptime
 		}
 
-		infoResponse := endpoint.NodePassInfo{
+		infoResponse := endpoint.NPInfo{
 			OS: func() string {
 				if ep.OS != nil {
 					return *ep.OS
@@ -1437,9 +1437,9 @@ func (h *EndpointHandler) HandleResetApiKey(c *gin.Context) {
 	log.Infof("[Master-%v] 开始重置API密钥", id)
 
 	// 1. 调用NB API重置密钥
-	newAPIKey, err := h.resetNodePassAPIKey(id, ep)
+	newAPIKey, err := h.resetNPAPIKey(id, ep)
 	if err != nil {
-		log.Errorf("[Master-%v] 调用NodePass重置密钥失败: %v", id, err)
+		log.Errorf("[Master-%v] 调用NP重置密钥失败: %v", id, err)
 		c.JSON(http.StatusInternalServerError, endpoint.EndpointResponse{
 			Success: false,
 			Error:   "Failed to reset key: " + err.Error(),
@@ -1472,8 +1472,8 @@ func (h *EndpointHandler) HandleResetApiKey(c *gin.Context) {
 	})
 }
 
-// resetNodePassAPIKey 调用NB API重置密钥
-func (h *EndpointHandler) resetNodePassAPIKey(endpointID int64, ep *endpoint.Endpoint) (string, error) {
+// resetNPAPIKey 调用NB API重置密钥
+func (h *EndpointHandler) resetNPAPIKey(endpointID int64, ep *endpoint.Endpoint) (string, error) {
 	// NB重置密钥需要调用nodepass.PatchInstance方法，传递instanceID="********"和action="restart"
 	// 根据注释，重置后的新密钥会在返回的result.url字段中
 

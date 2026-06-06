@@ -1,7 +1,7 @@
 package endpoint
 
 import (
-	"NodePassDash/internal/models"
+	"nb-panel/internal/models"
 )
 
 // 使用统一模型定义
@@ -50,8 +50,8 @@ type EndpointResponse struct {
 	Endpoint interface{} `json:"endpoint,omitempty"`
 }
 
-// NodePassInfo NodePass实例的系统信息
-type NodePassInfo struct {
+// NPInfo NP实例的系统信息
+type NPInfo struct {
 	OS     string `json:"os"`
 	Arch   string `json:"arch"`
 	Ver    string `json:"ver"`

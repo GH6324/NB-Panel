@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	log "NodePassDash/internal/log"
+	log "nb-panel/internal/log"
 	"context"
 	"fmt"
 	"math"

@@ -1,9 +1,9 @@
 package api
 
 import (
-	"NodePassDash/internal/auth"
-	"NodePassDash/internal/log"
-	"NodePassDash/internal/middleware"
+	"nb-panel/internal/auth"
+	"nb-panel/internal/log"
+	"nb-panel/internal/middleware"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"

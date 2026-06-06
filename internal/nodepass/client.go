@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"NodePassDash/internal/models"
+	"nb-panel/internal/models"
 
 	"github.com/go-resty/resty/v2"
 )

@@ -1,8 +1,8 @@
 package db
 
 import (
-	applog "NodePassDash/internal/log"
-	"NodePassDash/internal/models"
+	applog "nb-panel/internal/log"
+	"nb-panel/internal/models"
 	"context"
 	"database/sql"
 	"fmt"

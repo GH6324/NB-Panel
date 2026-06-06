@@ -1,9 +1,9 @@
 package api
 
 import (
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/nodepass"
-	"NodePassDash/internal/sse"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/nodepass"
+	"nb-panel/internal/sse"
 	"bufio"
 	"context"
 	"crypto/tls"
@@ -40,7 +40,7 @@ func SetupSSERoutes(rg *gin.RouterGroup, sseService *sse.Service, sseManager *ss
 
 	// SSE 相关路由
 	rg.GET("/sse/tunnel/:tunnelId", sseHandler.HandleTunnelSSE)                    // 实例详情页用
-	rg.GET("/sse/nodepass-proxy", sseHandler.HandleNodePassSSEProxy)               // 主控详情页代理用
+	rg.GET("/sse/np-proxy", sseHandler.HandleNPSSEProxy)               // 主控详情页代理用
 	rg.POST("/sse/test", sseHandler.HandleTestSSEEndpoint)                         // 添加主控的时候 测试sse是否通用
 	rg.POST("/sse/test-with-version", sseHandler.HandleTestSSEEndpointWithVersion) // 添加主控时 检测连接并获取版本信息
 
@@ -484,9 +484,9 @@ func compareVersion(actual, required string) bool {
 	return true // 完全相等，返回 true
 }
 
-// HandleNodePassSSEProxy 代理连接到NodePass主控的SSE
-// GET /api/sse/nodepass-proxy?endpointId=<base64-encoded-config>
-func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
+// HandleNPSSEProxy 代理连接到NP主控的SSE
+// GET /api/sse/np-proxy?endpointId=<base64-encoded-config>
+func (h *SSEHandler) HandleNPSSEProxy(c *gin.Context) {
 	// 解析端点配置
 	endpointIdParam := c.Query("endpointId")
 	if endpointIdParam == "" {
@@ -522,7 +522,7 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 	fmt.Fprintf(c.Writer, "data: %s\n\n", `{"type":"connected","message":"NB面板 SSE proxy connected successfully"}`)
 	c.Writer.Flush()
 
-	// 构造NodePass SSE URL
+	// 构造 NP SSE URL
 	sseURL := fmt.Sprintf("%s%s/events", config.URL, config.APIPath)
 	log.Infof("[NB SSE Proxy] 连接到: %s", sseURL)
 	log.Infof("[NB SSE Proxy] 配置信息: URL=%s, APIPath=%s, APIKey=%s", config.URL, config.APIPath, config.APIKey)
@@ -564,7 +564,7 @@ func (h *SSEHandler) HandleNodePassSSEProxy(c *gin.Context) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Errorf("[NB SSE Proxy] NodePass返回状态码: %d", resp.StatusCode)
+		log.Errorf("[NB SSE Proxy] NP 返回状态码: %d", resp.StatusCode)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", fmt.Sprintf(`{"type":"error","message":"NB returned status code: %d"}`, resp.StatusCode))
 		c.Writer.Flush()
 		return

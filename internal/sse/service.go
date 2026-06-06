@@ -1,10 +1,10 @@
 package sse
 
 import (
-	"NodePassDash/internal/endpoint"
-	log "NodePassDash/internal/log"
-	"NodePassDash/internal/models"
-	"NodePassDash/internal/nodepass"
+	"nb-panel/internal/endpoint"
+	log "nb-panel/internal/log"
+	"nb-panel/internal/models"
+	"nb-panel/internal/nodepass"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -273,7 +273,7 @@ func buildTunnel(payload SSEResp) *models.Tunnel {
 }
 
 func (s *Service) handleCreateEvent(payload SSEResp) {
-	// SSE create 事件表示 NodePass 客户端报告隧道创建成功
+	// SSE create 事件表示 NP 客户端报告隧道创建成功
 	// 此时隧道记录应该已经由 API 创建，我们只需要更新状态和流量信息
 	log.Debugf("[Master-%d]处理创建事件: 隧道 %s", payload.EndpointID, payload.Instance.ID)
 	// 先解析 URL 获取隧道配置信息

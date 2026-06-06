@@ -78,5 +78,5 @@ This project is provided "as is", without any express or implied warranties. You
 
 ## Stargazers
 
-[![Star History Chart](https://api.star-history.com/svg?repos=lima-droid/NB-Panel&type=Date)](https://star-history.com/#lima-droid/NB-Panel&Date)
+[![GitHub Stars](https://img.shields.io/github/stars/lima-droid/NB-Panel?style=for-the-badge&logo=github&color=gold)](https://github.com/lima-droid/NB-Panel)
 

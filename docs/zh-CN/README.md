@@ -1,70 +1,122 @@
 <div align="center">
   <img src="../nb-panel-logo.svg" alt="NB面板" height="80">
+  <h1>NB-Panel</h1>
+  <p><strong>轻量级隧道管理面板 · 单二进制 · 开箱即用</strong></p>
+  <p>
+    <a href="https://github.com/lima-droid/NB-Panel/releases">
+      <img src="https://img.shields.io/github/v/release/lima-droid/NB-Panel?style=flat-square&label=版本&color=2496ed" alt="Release">
+    </a>
+    <a href="https://github.com/lima-droid/NB-Panel">
+      <img src="https://img.shields.io/github/stars/lima-droid/NB-Panel?style=flat-square&label=星标&color=ffc107" alt="Stars">
+    </a>
+    <a href="https://github.com/lima-droid/NB-Panel/blob/main/LICENSE">
+      <img src="https://img.shields.io/github/license/lima-droid/NB-Panel?style=flat-square&label=许可&color=success" alt="License">
+    </a>
+    <a href="https://github.com/lima-droid/NB-Panel/actions">
+      <img src="https://img.shields.io/github/actions/workflow/status/lima-droid/NB-Panel/docker.yml?style=flat-square&label=构建&color=ff69b4" alt="Build">
+    </a>
+    <a href="https://github.com/lima-droid/NB-Panel">
+      <img src="https://img.shields.io/github/last-commit/lima-droid/NB-Panel?style=flat-square&label=更新&color=blueviolet" alt="Last Commit">
+    </a>
+    <a href="https://t.me/NBPanel">
+      <img src="https://img.shields.io/badge/Telegram-NBPanel-26A5E4?style=flat-square&logo=telegram" alt="Telegram">
+    </a>
+  </p>
+  <p>
+    <b>简体中文</b> · <a href="../../README.md">English</a>
+  </p>
 </div>
 
-**语言：** 简体中文 | [English](../../README.md)
+---
 
-![Version](https://img.shields.io/badge/version-3.4.4-blue.svg)
-![GitHub license](https://img.shields.io/github/license/lima-droid/NB-Panel)
+NB面板 是一个轻量级隧道管理面板，**Go 后端 + React 前端 + SQLite 存储**，单二进制文件部署，开箱即用。
 
-NB面板 是一个现代化的隧道管理面板，用于集中管理端点（Endpoints）、隧道（Tunnels）与服务（Services）。项目采用 **Go（Gin + GORM + SQLite）** 后端并内置 **React（Vite + TypeScript + HeroUI）** 前端，通过 **SSE / WebSocket** 提供实时监控与交互。
+## ✨ 功能一览
 
-## Demo 演示
+| 功能 | 说明 |
+|------|------|
+| 🎯 **端点管理** | 统一管理所有 NP主控端，支持批量操作、排序、搜索 |
+| 🌉 **隧道管理** | 可视化创建和编辑隧道，支持多种协议和场景模板 |
+| 📊 **实时监控** | SSE/WebSocket 推送隧道状态、流量、日志 |
+| 📈 **流量图表** | 小时/日/周多维度流量趋势 |
+| 🔐 **OAuth2 登录** | 支持 Cloudflare OAuth2，可关闭密码登录 |
+| 🌍 **多语言** | 内置中英文界面 |
+| 📱 **移动端友好** | 响应式布局，支持二维码导入移动端 App |
+| 🛠️ **运维工具** | 日志查看器、网络调试、系统状态图表 |
 
-- 在线演示：https://nb-panel.example.com/
-- 演示账号：`nbpanel` / `Np123456`
+> [完整更新日志 →](https://github.com/lima-droid/NB-Panel/releases)
 
-> ⚠️ 重要提醒：演示环境，请勿更改密码，请勿填写任何敏感信息。
+---
 
-## 功能亮点
+## 🚀 快速开始
 
-- **好看且现代的面板**：React + Vite + TypeScript + HeroUI，适配桌面与移动端。
-- **实时监控**：通过 SSE/WebSocket 推送隧道状态、流量与日志。
-- **多维度图表**：小时/日/周等趋势统计，并支持更细粒度的详情查看。
-- **强大的隧道管理能力**：端点、隧道、服务一站式管理（批量操作、排序等）。
-- **场景化创建/模板向导**：用向导化流程快速生成与创建常见配置，降低出错率。
-- **支持 OAuth2 登录**：可配置（如 GitHub / Cloudflare），并可选择禁用密码登录。
-- **i18n 国际化**：内置多语言支持。
-- **个性化设置**：隐私模式、主题/语言新手引导等体验配置。
-- **运维工具集**：文件日志查看、网络调试能力、端点系统状态图表等，便于定位问题。
-- **移动端协同**：支持生成二维码，便于移动端 App 导入使用。
-- **规模化管理更省心**：搜索/筛选/排序、分组/标签、批量操作，覆盖高频日常维护。
-- **版本更新可感知**：内置版本信息与更新提醒，帮助你及时跟进发布。
-- **轻量易集成**：内嵌前端 + 单服务运行形态，可用容器部署，也可直接挂 systemd。
-
-## 文档
-
-- [一键安装脚本](../scripts/install.sh)
-- Docker 部署：`ghcr.io/lima-droid/nb-panel:latest`
-
-## 命令行参数
+### Linux 一键安装
 
 ```bash
-./nb-panel --help
-./nb-panel --version
-./nb-panel --port 8080
-./nb-panel --log-level INFO
-./nb-panel --cert /path/to/cert.pem --key /path/to/key.pem
-./nb-panel --disable-login
-./nb-panel --sse-debug-log
-./nb-panel --resetpwd
+bash <(wget -qO- https://raw.githubusercontent.com/lima-droid/NB-Panel/main/scripts/install.sh)
 ```
 
-## 许可证
+### Docker
 
-BSD-3-Clause，见 `LICENSE`。
+```bash
+docker run -d --name nbpanel -p 4000:4000 ghcr.io/lima-droid/nb-panel:latest
+```
 
-## ⚖️ 免责声明
+### 手动安装
 
-本项目以“现状”提供，开发者不提供任何明示或暗示的保证。用户使用风险自担，需遵守当地法律法规，仅限合法用途。开发者对任何直接、间接、偶然或后果性损害概不负责。进行二次开发须承诺合法使用并自负法律责任。开发者保留随时修改软件功能及本声明的权利。最终解释权归开发者所有。
+`scripts/install.sh` 同时支持二进制（systemd）和 Docker 部署。
 
-## 📞 支持
+---
 
-- 🐛 问题报告: https://github.com/lima-droid/NB-Panel/issues
-- 💬 社区讨论: https://t.me/CubeMihomo
-- 📢 频道: https://t.me/CubeMihomo
+## ⚙️ CLI 参数
 
-## ⭐ Stargazers
+| 参数 | 说明 |
+|------|------|
+| `--help` | ❓ 帮助 |
+| `--version` | ℹ️ 版本 |
+| `--port 8080` | 🔌 端口（默认 4000） |
+| `--log-level INFO` | 📝 日志级别 |
+| `--cert / --key` | 🔒 TLS 证书 |
+| `--disable-login` | 🚫 关闭登录 |
+| `--sse-debug-log` | 🐛 SSE 调试日志 |
+| `--resetpwd` | 🔑 重置密码 |
 
-[![Star History Chart](https://api.star-history.com/svg?repos=lima-droid/NB-Panel&type=Date)](https://star-history.com/#lima-droid/NB-Panel&Date)
+---
 
+## 🔑 默认登录
+
+| | |
+|---|---|
+| **用户名** | `nbpanel` |
+| **密码** | `Np123456` |
+
+> 密码可通过环境变量 `NB_PANEL_ADMIN_PASSWORD` 覆盖。
+
+---
+
+## 📋 系统要求
+
+- 🐧 **Linux / macOS**
+- 🐳 **Docker**（可选）
+
+---
+
+## 📝 许可
+
+BSD-3-Clause · 详见 [LICENSE](LICENSE)
+
+## ⚠️ 免责声明
+
+本项目按"现状"提供，不含任何明示或暗示的担保。使用者须遵守当地法律法规并仅用于合法目的。作者不对任何直接、间接、偶发或后果性损害承担责任。
+
+## 📬 联系方式
+
+- [GitHub Issues](https://github.com/lima-droid/NB-Panel/issues)
+- [Telegram 群组](https://t.me/NBPanel)
+- [@CubeMihomo](https://t.me/CubeMihomo)
+
+---
+
+## ⭐ Star历史
+
+[![Stargazers](https://img.shields.io/github/stars/lima-droid/NB-Panel?style=for-the-badge&logo=github&color=gold)](https://github.com/lima-droid/NB-Panel)

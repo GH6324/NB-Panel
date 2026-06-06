@@ -51,3 +51,4 @@ type GroupResponse struct {
 	Group   interface{} `json:"group,omitempty"`
 	Groups  interface{} `json:"groups,omitempty"`
 }
+

@@ -382,3 +382,4 @@ export const formatMetricsData = {
     return { min, max, avg, count: data.length };
   },
 };
+

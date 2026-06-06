@@ -322,3 +322,4 @@ func (s *Service) BatchAssignTunnelsToGroup(groupID int64, req *BatchAssignTunne
 		return nil
 	})
 }
+

@@ -272,3 +272,4 @@ export const PoolChart: React.FC<PoolChartProps> = ({
     </ChartContainer>
   );
 };
+

@@ -67,3 +67,4 @@ BSD-3-Clause，见 `LICENSE`。
 ## ⭐ Stargazers
 
 [![Star History Chart](https://api.star-history.com/svg?repos=lima-droid/NB-Panel&type=Date)](https://star-history.com/#lima-droid/NB-Panel&Date)
+

@@ -842,3 +842,4 @@ func BuildTunnelURLs(tunnel models.Tunnel) string {
 
 	return strings.Join(urlParts, "")
 }
+

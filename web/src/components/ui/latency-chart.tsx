@@ -263,3 +263,4 @@ export const LatencyChart: React.FC<LatencyChartProps> = ({
     </ChartContainer>
   );
 };
+

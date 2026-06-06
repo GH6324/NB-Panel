@@ -98,3 +98,4 @@ type WeeklyStatsItem struct {
 	UDPOut     int64  `json:"udp_out"`    // UDP 出站流量
 	TotalBytes int64  `json:"total_bytes"` // 总流量
 }
+

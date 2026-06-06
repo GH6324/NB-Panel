@@ -5,3 +5,4 @@ declare const __APP_VERSION__: string;
 export const getVersion = () => {
   return __APP_VERSION__ || "0.0.0";
 };
+

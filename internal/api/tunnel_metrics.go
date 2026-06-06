@@ -768,3 +768,4 @@ func (h *TunnelMetricsHandler) createEmptyTrendData(hours int) map[string]interf
 func (h *TunnelMetricsHandler) GetMetricsStats() map[string]interface{} {
 	return h.sseProcessor.GetStats()
 }
+

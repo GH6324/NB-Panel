@@ -324,3 +324,4 @@ func (m *Manager) GetStats() map[string]interface{} {
 		"persist_interval": m.persistInterval.String(),
 	}
 }
+

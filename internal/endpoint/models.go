@@ -62,3 +62,4 @@ type NPInfo struct {
 	Key    string `json:"key"`
 	Uptime *int64 `json:"uptime,omitempty"` // 使用指针类型，支持低版本兼容
 }
+

@@ -87,3 +87,4 @@ export const LanguageSwitch: React.FC<LanguageSwitchProps> = ({
     </Dropdown>
   );
 };
+

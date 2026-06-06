@@ -207,3 +207,4 @@ func (c *ArchiveConfig) ShouldArchiveTrafficData(recordCount int) bool {
 func (c *ArchiveConfig) GetSnapshotCalculationInterval() time.Duration {
 	return time.Duration(c.SnapshotCalculationIntervalSeconds) * time.Second
 }
+

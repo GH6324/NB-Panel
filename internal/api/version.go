@@ -1224,3 +1224,4 @@ func (h *VersionHandler) extractFromTarGz(tarGzPath, targetDir, expectedExeName 
 
 	return "", fmt.Errorf("在tar.gz文件中未找到可执行文件 %s", expectedExeName)
 }
+

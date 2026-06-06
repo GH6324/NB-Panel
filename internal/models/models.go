@@ -305,3 +305,4 @@ type EndpointSSE struct {
 func (EndpointSSE) TableName() string {
 	return "endpoint_sse_events"
 }
+

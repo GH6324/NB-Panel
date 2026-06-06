@@ -312,3 +312,4 @@ export const ConnectionsChart: React.FC<ConnectionsChartProps> = ({
     </ChartContainer>
   );
 };
+

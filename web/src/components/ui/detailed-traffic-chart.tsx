@@ -361,3 +361,4 @@ export const DetailedTrafficChart: React.FC<DetailedTrafficChartProps> = ({
     </ChartContainer>
   );
 };
+

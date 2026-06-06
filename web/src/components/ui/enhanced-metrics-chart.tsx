@@ -323,3 +323,4 @@ export const EnhancedMetricsChart: React.FC<EnhancedMetricsChartProps> = ({
     />
   );
 };
+

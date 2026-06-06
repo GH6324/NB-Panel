@@ -324,3 +324,4 @@ export const TodayTrafficChart = React.forwardRef<
 );
 
 TodayTrafficChart.displayName = "TodayTrafficChart";
+

@@ -1904,3 +1904,4 @@ export default function EndpointDetailPage() {
     </div>
   );
 }
+

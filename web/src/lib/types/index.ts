@@ -187,3 +187,4 @@ export interface EndpointSSE {
   createdAt: Date;
   endpoint?: Endpoint;
 }
+

@@ -111,3 +111,4 @@ export const ServerIconRed: React.FC<ServerIconProps> = ({
     </svg>
   );
 };
+

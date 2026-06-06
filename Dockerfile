@@ -44,3 +44,4 @@ COPY --from=backend-builder /app/nbpanel ./
 
 EXPOSE 4000
 CMD ["/app/nbpanel"]
+

@@ -471,3 +471,4 @@ func (hw *HistoryWorker) Close() {
 
 	log.Info("历史数据处理Worker已关闭")
 }
+

@@ -679,3 +679,4 @@ func (h *ServicesHandler) getTunnelIDByName(tunnelName string) (int64, error) {
 	err := h.tunnelService.DB().QueryRow(`SELECT id FROM tunnels WHERE name = ?`, tunnelName).Scan(&tunnelID)
 	return tunnelID, err
 }
+

@@ -826,3 +826,4 @@ func (s *TunnelShared) Reload(db *gorm.DB) error {
 	log.Infof("[TunnelCache] 缓存重新加载完成，共 %d 个隧道", len(s.list))
 	return nil
 }
+

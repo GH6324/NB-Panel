@@ -368,3 +368,4 @@ export function useSSE(endpoint: string, options: SSEOptions) {
 
   return eventSourceRef.current;
 }
+

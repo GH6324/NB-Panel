@@ -96,3 +96,4 @@ func (c *MemoryCache) cleanup() {
 }
 
 // 简化版本：移除复杂的缓存服务，TrafficService内部已经包含了简单的内存缓存
+

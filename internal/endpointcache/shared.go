@@ -561,3 +561,4 @@ func (s *EndpointShared) Reload(db *gorm.DB) error {
 	log.Infof("[EndpointCache] 缓存重新加载完成，共 %d 个端点", len(s.list))
 	return nil
 }
+

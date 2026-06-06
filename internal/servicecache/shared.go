@@ -640,3 +640,4 @@ func (s *ServiceShared) Reload(db *gorm.DB) error {
 	log.Infof("[ServiceCache] 缓存重新加载完成，共 %d 个服务", len(s.list))
 	return nil
 }
+

@@ -89,3 +89,4 @@ func (d *DashboardTrafficSummary) GetTCPTotal() int64 {
 func (d *DashboardTrafficSummary) GetUDPTotal() int64 {
 	return d.UDPRxTotal + d.UDPTxTotal
 }
+

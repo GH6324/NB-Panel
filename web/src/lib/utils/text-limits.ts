@@ -124,3 +124,4 @@ export function truncateText(
 
   return result + suffix;
 }
+

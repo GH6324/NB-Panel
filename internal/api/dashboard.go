@@ -238,3 +238,4 @@ func (h *DashboardHandler) HandleWeeklyStats(c *gin.Context) {
 		"count":   len(weeklyStats),
 	})
 }
+

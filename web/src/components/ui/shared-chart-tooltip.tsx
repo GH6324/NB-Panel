@@ -291,3 +291,4 @@ export const ConnectionsTooltip = ({ active, payload, label }: any) => {
 };
 
 export default SharedChartTooltip;
+

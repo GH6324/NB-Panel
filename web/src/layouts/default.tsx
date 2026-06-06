@@ -29,3 +29,4 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
     </div>
   );
 }
+

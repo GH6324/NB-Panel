@@ -545,3 +545,4 @@ const IconComparisonPage: React.FC = () => {
 };
 
 export default IconComparisonPage;
+

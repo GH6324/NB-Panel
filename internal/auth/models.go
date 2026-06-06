@@ -44,3 +44,4 @@ const (
 	DefaultAdminPassword     = "Np123456"
 	DemoModeAdminPassword    = "Np123456."  // Demo 模式专用密码
 )
+

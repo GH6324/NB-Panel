@@ -192,3 +192,4 @@ func (p *SSEProcessor) GetStats() map[string]interface{} {
 		"processor_version":       "1.0.0",
 	}
 }
+

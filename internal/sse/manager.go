@@ -694,3 +694,4 @@ func (m *Manager) NotifyEndpointStatusChanged(endpointID int64, status string) {
 		}
 	}
 }
+

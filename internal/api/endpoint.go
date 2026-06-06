@@ -1570,3 +1570,4 @@ func (h *EndpointHandler) HandleTestConnection(c *gin.Context) {
 		"message": "Connection test passed",
 	})
 }
+

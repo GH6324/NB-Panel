@@ -718,3 +718,4 @@ func (s *ServiceImpl) UpdateServicesSorts(req *UpdateServicesSortsRequest) error
 	log.Infof("[Service] 批量更新 %d 个服务的排序成功", len(req.Services))
 	return nil
 }
+

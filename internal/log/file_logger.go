@@ -581,3 +581,4 @@ func (fl *FileLogger) GetAvailableLogDates(endpointID int64, instanceID string) 
 
 	return dates, nil
 }
+

@@ -821,3 +821,4 @@ func (h *DataHandler) HandleBatchImportEndpoints(c *gin.Context) {
 		"skippedEndpoints":  skippedEndpoints,
 	})
 }
+

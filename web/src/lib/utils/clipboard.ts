@@ -404,3 +404,4 @@ export class ClipboardManager {
  * 简化的复制函数，用于快速调用
  */
 export const copyToClipboard = ClipboardManager.copyOnClick;
+

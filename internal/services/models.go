@@ -53,3 +53,4 @@ type ServiceSortItem struct {
 type UpdateServicesSortsRequest struct {
 	Services []ServiceSortItem `json:"services" binding:"required,min=1"`
 }
+

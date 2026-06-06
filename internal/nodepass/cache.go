@@ -128,3 +128,4 @@ func (c *Cache) Clear() {
 
 	c.items = make(map[string]*CacheItem)
 }
+

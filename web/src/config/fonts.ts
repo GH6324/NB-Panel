@@ -8,3 +8,4 @@ export const fontMono = {
   variable: "--font-mono",
   className: "font-mono",
 };
+

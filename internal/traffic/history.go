@@ -509,3 +509,4 @@ func (hm *HistoryManager) Close() {
 
 	log.Info("流量历史管理器已关闭")
 }
+

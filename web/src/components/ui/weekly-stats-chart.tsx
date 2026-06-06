@@ -226,3 +226,4 @@ function WeeklyStatsChartComponent({
 
 // 使用React.memo优化渲染性能
 export const WeeklyStatsChart = React.memo(WeeklyStatsChartComponent);
+

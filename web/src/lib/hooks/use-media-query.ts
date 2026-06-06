@@ -27,3 +27,4 @@ export function useIsMobile() {
 export function useIsDesktop() {
   return useMediaQuery("(min-width: 769px)");
 }
+

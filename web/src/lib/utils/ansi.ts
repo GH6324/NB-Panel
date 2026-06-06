@@ -41,3 +41,4 @@ export function processAnsiColors(text: string): string {
     return text;
   }
 }
+

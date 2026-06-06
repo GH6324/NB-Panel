@@ -844,3 +844,4 @@ func (s *TrafficService) GetLatestDashboardTrafficData() (*models.DashboardTraff
 
 	return &data, nil
 }
+

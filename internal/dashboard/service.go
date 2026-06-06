@@ -640,3 +640,4 @@ func (s *Service) GetWeeklyStats() ([]WeeklyStatsItem, error) {
 
 	return weeklyStats, nil
 }
+

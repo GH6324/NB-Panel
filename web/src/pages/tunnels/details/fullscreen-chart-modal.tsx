@@ -225,3 +225,4 @@ export const FullscreenChartModal: React.FC<FullscreenChartModalProps> = ({
     </Modal>
   );
 };
+

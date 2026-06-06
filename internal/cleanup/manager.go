@@ -350,3 +350,4 @@ func (m *Manager) Close() {
 
 	log.Info("数据清理管理器已关闭")
 }
+

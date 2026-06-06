@@ -179,3 +179,4 @@ func (c *DBConfig) PrintConfig() {
 	log.Infof("  WAL模式: %v", c.WALMode)
 	log.Infof("  自动去重: %v", c.AutoDedup)
 }
+

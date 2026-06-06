@@ -125,3 +125,4 @@ func (s *Service) RefreshToken(oldToken string) (tokenString string, expiresAt t
 func SetJWTExpiration(duration time.Duration) {
 	jwtExpiration = duration
 }
+

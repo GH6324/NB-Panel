@@ -976,3 +976,4 @@ func (h *AuthHandler) HandleOAuth2Provider(c *gin.Context) {
 		"disableLogin": disableLogin == "true",
 	})
 }
+

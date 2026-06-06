@@ -273,3 +273,4 @@ export const SpeedChart: React.FC<SpeedChartProps> = ({
     </ChartContainer>
   );
 };
+

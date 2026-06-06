@@ -594,3 +594,4 @@ func (a *MetricsAggregator) Close() {
 
 	log.Info("指标聚合器已关闭")
 }
+

@@ -185,3 +185,4 @@ func (s *TrafficScheduler) executeCleanup() {
 func (s *TrafficScheduler) GetTrafficService() *TrafficService {
 	return s.trafficService
 }
+

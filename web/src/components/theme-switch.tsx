@@ -32,3 +32,4 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({ className }) => {
     </Button>
   );
 };
+

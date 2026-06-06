@@ -326,3 +326,4 @@ func (s *CleanupService) UpdateConfig(config *CleanupConfig) {
 		s.config = config
 	}
 }
+

@@ -125,3 +125,4 @@ export const TrafficStatsCard = ({
     </div>
   );
 };
+

@@ -203,3 +203,4 @@ function DailyStatsChartComponent({
 
 // 使用React.memo优化渲染性能
 export const DailyStatsChart = React.memo(DailyStatsChartComponent);
+

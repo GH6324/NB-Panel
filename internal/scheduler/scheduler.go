@@ -422,3 +422,4 @@ func (s *Scheduler) ForceExecuteTask(taskName string) error {
 func (s *Scheduler) GetArchiveManager() *ArchiveManager {
 	return s.archiveManager
 }
+

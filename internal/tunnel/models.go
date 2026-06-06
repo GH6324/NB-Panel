@@ -237,3 +237,4 @@ type TunnelSortItem struct {
 type UpdateTunnelsSortsRequest struct {
 	Tunnels []TunnelSortItem `json:"tunnels" binding:"required,min=1"`
 }
+

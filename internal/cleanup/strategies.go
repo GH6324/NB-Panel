@@ -429,3 +429,4 @@ func (s *DeletedEndpointsCleanupStrategy) Execute(ctx context.Context, db *gorm.
 
 	return result, nil
 }
+

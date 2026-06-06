@@ -38,3 +38,4 @@ Thumbs.db
 # 本地配置
 config.local.*
 node_modules/
+
